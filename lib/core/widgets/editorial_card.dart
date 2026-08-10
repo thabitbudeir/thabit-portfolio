@@ -7,10 +7,8 @@ import '../theme/typography.dart';
 ///
 /// Design rules:
 /// - Sharp corners by default (radius 4). The "tech-document" feel.
-/// - Hover state is a single accent hairline that "draws" around the card,
-///   not a scale + shadow effect.
-/// - Optional side number — the "this is entry 01, 02, 03" voice.
-/// - GPU-friendly: only Border changes color, no transform/shadow animations.
+/// - Hover state is a single accent hairline that "draws" around the card.
+/// - Keyboard focus support added for accessibility.
 class EditorialCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -19,6 +17,7 @@ class EditorialCard extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final bool dense;
   final Color? overrideBorder;
+  final String? semanticLabel;
 
   const EditorialCard({
     super.key,
@@ -29,6 +28,7 @@ class EditorialCard extends StatefulWidget {
     this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.dense = false,
     this.overrideBorder,
+    this.semanticLabel,
   });
 
   @override
@@ -37,6 +37,7 @@ class EditorialCard extends StatefulWidget {
 
 class _EditorialCardState extends State<EditorialCard> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,70 +47,89 @@ class _EditorialCardState extends State<EditorialCard> {
     final accent = AppColors.accent;
 
     final borderColor = widget.overrideBorder ??
-        (_hovered
-            ? accent.withValues(alpha: 0.6)
+        ((_hovered || _focused)
+            ? accent.withValues(alpha: 0.8)
             : line);
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      cursor:
-          widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: AppMotion.fast,
-          curve: AppMotion.standard,
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-            border: Border.all(color: borderColor, width: 1),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-          child: Stack(
-            children: [
-              if (widget.number != null)
-                Positioned(
-                  top: AppSpacing.md,
-                  right: AppSpacing.lg,
-                  child: Text(
-                    widget.number!,
-                    style: t.label.copyWith(
-                      color: _hovered ? accent : null,
-                      letterSpacing: 1.4,
-                    ),
-                  ),
+    final interactive = widget.onTap != null;
+
+    Widget content = AnimatedContainer(
+      duration: AppMotion.fast,
+      curve: AppMotion.standard,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        border: Border.all(
+          color: borderColor, 
+          width: _focused ? 2 : 1,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Stack(
+        children: [
+          if (widget.number != null)
+            Positioned(
+              top: AppSpacing.md,
+              right: AppSpacing.lg,
+              child: Text(
+                widget.number!,
+                style: t.label.copyWith(
+                  color: (_hovered || _focused) ? accent : null,
+                  letterSpacing: 1.4,
                 ),
-              if (widget.tag != null)
-                Positioned(
-                  top: AppSpacing.md,
-                  left: AppSpacing.lg,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: line, width: 1),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                    ),
-                    child: Text(
-                      widget.tag!.toUpperCase(),
-                      style: t.label.copyWith(
-                        color: accent,
-                        fontSize: 10,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ),
-              Padding(
-                padding: widget.tag != null
-                    ? widget.padding.add(const EdgeInsets.only(top: AppSpacing.lg))
-                    : widget.padding,
-                child: widget.child,
               ),
-            ],
+            ),
+          if (widget.tag != null)
+            Positioned(
+              top: AppSpacing.md,
+              left: AppSpacing.lg,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: line, width: 1),
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                ),
+                child: Text(
+                  widget.tag!.toUpperCase(),
+                  style: t.label.copyWith(
+                    color: accent,
+                    fontSize: 10,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: widget.tag != null
+                ? widget.padding.add(const EdgeInsets.only(top: AppSpacing.lg))
+                : widget.padding,
+            child: widget.child,
           ),
+        ],
+      ),
+    );
+
+    if (!interactive) {
+      return content;
+    }
+
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        mouseCursor: SystemMouseCursors.click,
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => widget.onTap?.call(),
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: content,
         ),
       ),
     );
@@ -117,7 +137,6 @@ class _EditorialCardState extends State<EditorialCard> {
 }
 
 /// AsymmetricPanel — for the hero, project spotlights, and other "statement" surfaces.
-/// Not a card, not a hero — a panel. Sharp top-left corner, hairline border, optional accent edge.
 class AsymmetricPanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;

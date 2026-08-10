@@ -20,15 +20,8 @@ class DesignsSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionDesigns,
-            title: AppStrings.get(
-                'UI/UX gallery.',
-                'معرض تصاميم UI/UX.',
-                'UI/UX-Galerie.'),
-            subtitle: AppStrings.get(
-              'Interface work — product, mobile, and web.',
-              'أعمال واجهات — منتجات، موبايل، وويب.',
-              'Interface-Arbeit — Produkt, Mobile und Web.',
-            ),
+            title: AppStrings.designsHeadline,
+            subtitle: AppStrings.designsSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
           RevealOnScroll(
@@ -93,107 +86,119 @@ class _DesignTile extends StatefulWidget {
 
 class _DesignTileState extends State<_DesignTile> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _open(context),
-        child: AnimatedContainer(
-          duration: AppMotion.base,
-          curve: AppMotion.standard,
-          height: widget.height,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: _hovered
-                  ? AppColors.accent.withValues(alpha: 0.5)
-                  : (Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.darkLine
-                      : AppColors.lightLine),
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.md),
+    final active = _hovered || _focused;
+
+    return Semantics(
+      button: true,
+      label: '${AppStrings.viewDesign}: ${widget.design.title}',
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        mouseCursor: SystemMouseCursors.click,
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => _open(context),
           ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  child: AnimatedScale(
-                    scale: _hovered ? 1.04 : 1.0,
-                    duration: AppMotion.slow,
-                    curve: AppMotion.standard,
-                    child: Image.asset(
-                      widget.design.imageUrl,
-                      fit: BoxFit.cover,
-                      cacheWidth: 800,
-                      errorBuilder: (context, error, stack) {
-                        return Container(
-                          color: AppColors.accentDim,
-                          alignment: Alignment.center,
-                          child: Text(
-                            widget.design.title.toUpperCase(),
-                            style: t.labelAccent.copyWith(letterSpacing: 2.4),
-                          ),
-                        );
-                      },
+        },
+        child: GestureDetector(
+          onTap: () => _open(context),
+          child: AnimatedContainer(
+            duration: AppMotion.base,
+            curve: AppMotion.standard,
+            height: widget.height,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: active
+                    ? AppColors.accent.withValues(alpha: 0.8)
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkLine
+                        : AppColors.lightLine),
+                width: _focused ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    child: AnimatedScale(
+                      scale: active ? 1.04 : 1.0,
+                      duration: AppMotion.slow,
+                      curve: AppMotion.standard,
+                      child: Image.asset(
+                        widget.design.imageUrl,
+                        fit: BoxFit.cover,
+                        cacheWidth: 800,
+                        errorBuilder: (context, error, stack) {
+                          return Container(
+                            color: AppColors.accentDim,
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.design.title.toUpperCase(),
+                              style: t.labelAccent.copyWith(letterSpacing: 2.4),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Bottom info bar
-              Positioned(
-                left: AppSpacing.md,
-                right: AppSpacing.md,
-                bottom: AppSpacing.md,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.72),
-                    borderRadius: BorderRadius.circular(AppRadius.xs),
-                    border: Border.all(
-                      color: _hovered ? AppColors.accent : Colors.white24,
-                      width: 1,
+                // Bottom info bar
+                Positioned(
+                  left: AppSpacing.md,
+                  right: AppSpacing.md,
+                  bottom: AppSpacing.md,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.design.title,
-                              style: t.heading3.copyWith(color: Colors.white),
-                            ),
-                            Text(
-                              widget.design.category,
-                              style: t.label.copyWith(
-                                color: AppColors.accent,
-                                fontSize: 9,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.72),
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                      border: Border.all(
+                        color: active ? AppColors.accent : Colors.white24,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.design.title,
+                                style: t.heading3.copyWith(color: Colors.white),
                               ),
-                            ),
-                          ],
+                              Text(
+                                widget.design.category,
+                                style: t.label.copyWith(
+                                  color: AppColors.accent,
+                                  fontSize: 9,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Icon(
-                        Icons.arrow_outward_rounded,
-                        size: 14,
-                        color: _hovered ? AppColors.accent : Colors.white,
-                      ),
-                    ],
+                        Icon(
+                          Icons.arrow_outward_rounded,
+                          size: 14,
+                          color: active ? AppColors.accent : Colors.white,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

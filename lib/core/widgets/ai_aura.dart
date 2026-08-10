@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import '../theme/app_colors.dart';
+import '../utils/motion_policy.dart';
 
 class AIAura extends StatefulWidget {
   final double size;
@@ -11,7 +13,8 @@ class AIAura extends StatefulWidget {
 }
 
 class _AIAuraState extends State<AIAura> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late final AnimationController _controller;
+  bool _isVisible = true;
 
   @override
   void initState() {
@@ -19,7 +22,22 @@ class _AIAuraState extends State<AIAura> with SingleTickerProviderStateMixin {
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateAnimationState();
+  }
+
+  void _updateAnimationState() {
+    final shouldAnimate = MotionPolicy.shouldAnimate(context) && _isVisible;
+    if (shouldAnimate) {
+      if (!_controller.isAnimating) _controller.repeat();
+    } else {
+      _controller.stop();
+    }
   }
 
   @override
@@ -30,26 +48,37 @@ class _AIAuraState extends State<AIAura> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary( // Optimization: Isolate this heavy animation
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return CustomPaint(
-            size: Size(widget.size, widget.size),
-            painter: _AIPainter(_controller.value),
-          );
-        },
+    // VisibilityDetector pauses the animation when off-screen
+    return VisibilityDetector(
+      key: const ValueKey('ai_aura_visibility'),
+      onVisibilityChanged: (info) {
+        final visible = info.visibleFraction > 0;
+        if (visible != _isVisible) {
+          _isVisible = visible;
+          _updateAnimationState();
+        }
+      },
+      child: RepaintBoundary(
+        child: CustomPaint(
+          size: Size(widget.size, widget.size),
+          // Pass the controller as repaint to the painter
+          painter: _AIPainter(repaint: _controller),
+        ),
       ),
     );
   }
 }
 
 class _AIPainter extends CustomPainter {
-  final double progress;
-  _AIPainter(this.progress);
+  final Animation<double> _animation;
+
+  _AIPainter({required Animation<double> repaint})
+      : _animation = repaint,
+        super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
+    final progress = _animation.value;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     
@@ -57,7 +86,6 @@ class _AIPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
-    // Drawing fewer circles with more simplified noise for performance
     for (int i = 0; i < 2; i++) {
       final p = (progress + (i * 0.5)) % 1.0;
       final opacity = (1.0 - p).clamp(0.0, 0.2);
@@ -67,10 +95,9 @@ class _AIPainter extends CustomPainter {
       final currentRadius = radius * p;
       final path = Path();
       
-      // Increased step from 5 to 10 degrees to reduce points by 50%
-      for (int j = 0; j <= 360; j += 10) {
+      // Points reduction: j += 15 for even less calculations per frame
+      for (int j = 0; j <= 360; j += 15) {
         final radians = j * math.pi / 180;
-        // Smoother, less frequent noise calculation
         final noise = math.sin(radians * 3 + progress * 5) * 4;
         final x = center.dx + (currentRadius + noise) * math.cos(radians);
         final y = center.dy + (currentRadius + noise) * math.sin(radians);
@@ -81,11 +108,11 @@ class _AIPainter extends CustomPainter {
           path.lineTo(x, y);
         }
       }
+      path.close();
       canvas.drawPath(path, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _AIPainter oldDelegate) => 
-      oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _AIPainter oldDelegate) => false;
 }

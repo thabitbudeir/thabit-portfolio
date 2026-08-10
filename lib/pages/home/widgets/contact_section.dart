@@ -115,52 +115,72 @@ class _ContactEntry extends StatefulWidget {
 
 class _ContactEntryState extends State<_ContactEntry> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: AppMotion.fast,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: _hovered ? AppColors.accent : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
-                  shape: BoxShape.circle,
-                ),
+    final active = _hovered || _focused;
+
+    return Semantics(
+      button: true,
+      label: '${widget.label}: ${widget.value}',
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        mouseCursor: SystemMouseCursors.click,
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => widget.onTap(),
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.onTap,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: AppMotion.fast,
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: _focused ? AppColors.accent.withValues(alpha: 0.05) : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.xs),
+              border: Border.all(
+                color: _focused ? AppColors.accent.withValues(alpha: 0.3) : Colors.transparent,
+                width: 1,
               ),
-              const SizedBox(width: AppSpacing.md),
-              SizedBox(
-                width: 100,
-                child: Text(widget.label.toUpperCase(), style: t.label),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  widget.value,
-                  style: t.monoBody.copyWith(
-                    color: _hovered ? AppColors.accent : null,
-                    fontSize: 13,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: active ? AppColors.accent : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
+                    shape: BoxShape.circle,
                   ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_outward_rounded,
-                size: 14,
-                color: _hovered ? AppColors.accent : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
-              ),
-            ],
+                const SizedBox(width: AppSpacing.md),
+                SizedBox(
+                  width: 100,
+                  child: Text(widget.label.toUpperCase(), style: t.label),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    widget.value,
+                    style: t.monoBody.copyWith(
+                      color: active ? AppColors.accent : null,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_outward_rounded,
+                  size: 14,
+                  color: active ? AppColors.accent : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
+                ),
+              ],
+            ),
           ),
         ),
       ),

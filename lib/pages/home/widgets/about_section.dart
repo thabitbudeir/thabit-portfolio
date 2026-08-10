@@ -4,6 +4,7 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
+import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/ui_primitives.dart';
 
 class AboutSection extends StatelessWidget {
@@ -17,10 +18,7 @@ class AboutSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionAbout,
-            title: AppStrings.get(
-                'Engineer, builder, design-minded.',
-                'مهندس، مطوّر، يهتم بالتفاصيل.',
-                'Ingenieur, Builder, designorientiert.'),
+            title: AppStrings.aboutHeadline,
           ),
           const SizedBox(height: AppSpacing.xxl),
           RevealOnScroll(
@@ -63,6 +61,31 @@ class AboutSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Text(AppStrings.aboutP3, style: t.bodyLg),
         const SizedBox(height: AppSpacing.xl),
+        
+        // Step 5: Resume Experience
+        Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            AppButton(
+              label: AppStrings.viewResume,
+              kind: ButtonKind.secondary,
+              onPressed: () {
+                // Placeholder for resume view
+              },
+            ),
+            AppButton(
+              label: AppStrings.downloadPdf,
+              kind: ButtonKind.ghost,
+              leadingIcon: Icons.download_rounded,
+              onPressed: () {
+                // Placeholder for resume download
+              },
+            ),
+          ],
+        ),
+        
+        const SizedBox(height: AppSpacing.xl),
         Container(
           padding: const EdgeInsets.only(top: AppSpacing.lg),
           decoration: const BoxDecoration(
@@ -72,11 +95,7 @@ class AboutSection extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  AppStrings.get(
-                    '— Thabit Budeir',
-                    '— ثابت بدير',
-                    '— Thabit Budeir',
-                  ),
+                  AppStrings.thabitSignature,
                   style: t.monoBody.copyWith(
                     color: AppColors.accent,
                     letterSpacing: 1.2,
@@ -109,12 +128,12 @@ class AboutSection extends StatelessWidget {
           Row(
             children: [
               Text(
-                AppStrings.get('PROFILE', 'الملف', 'PROFIL'),
+                AppStrings.profileLabel,
                 style: t.labelAccent,
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                AppStrings.get('LAYERS', 'الطبقات', 'SCHICHTEN'),
+                AppStrings.layersLabel,
                 style: t.label,
               ),
             ],
@@ -129,10 +148,10 @@ class AboutSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          _statRow(context, 'ENGINEER', 'CS · AI'),
-          _statRow(context, 'BUILDER', 'Flutter · Web'),
-          _statRow(context, 'DESIGNER', 'UI · UX'),
-          _statRow(context, 'LANGUAGES', 'EN · AR · DE'),
+          _statRow(context, AppStrings.statEngineer, 'CS · AI'),
+          _statRow(context, AppStrings.statBuilder, 'Flutter · Web'),
+          _statRow(context, AppStrings.statDesigner, 'UI · UX'),
+          _statRow(context, AppStrings.statLanguages, 'EN · AR · DE'),
         ],
       ),
     );

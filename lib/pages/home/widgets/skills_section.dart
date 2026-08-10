@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/animations/animations.dart';
 import '../../../core/localization/app_strings.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/editorial_card.dart';
@@ -20,15 +19,8 @@ class SkillsSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionSkills,
-            title: AppStrings.get(
-                'Stack & workflow.',
-                'المهارات وسير العمل.',
-                'Stack & Workflow.'),
-            subtitle: AppStrings.get(
-              'The tools I work with daily, and how I put them together.',
-              'الأدوات التي أعمل بها يومياً، وكيف أجمعها معاً.',
-              'Die Werkzeuge, mit denen ich täglich arbeite, und wie ich sie verbinde.',
-            ),
+            title: AppStrings.skillsHeadline,
+            subtitle: AppStrings.skillsSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
           LayoutBuilder(
@@ -74,6 +66,8 @@ class _SkillGroup extends StatelessWidget {
     return EditorialCard(
       number: category.number,
       tag: category.name.toUpperCase(),
+      onTap: () {}, // Make card interactive
+      semanticLabel: category.name,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -83,13 +77,13 @@ class _SkillGroup extends StatelessWidget {
             Text(category.description, style: t.bodySm),
           ],
           const SizedBox(height: AppSpacing.lg),
-          Hairline(),
+          const Hairline(),
           const SizedBox(height: AppSpacing.lg),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: category.skills
-                .map((skill) => TechChip(label: skill, dense: true))
+                .map<Widget>((skill) => TechChip(label: skill, dense: true))
                 .toList(),
           ),
         ],

@@ -15,6 +15,7 @@ import 'widgets/hero_section.dart';
 import 'widgets/projects_section.dart';
 import 'widgets/skills_section.dart';
 import 'widgets/what_i_do_section.dart';
+import 'widgets/lab_section.dart';
 
 class HomePage extends StatefulWidget {
   final Function(AppLanguage) onLanguageChanged;
@@ -32,10 +33,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
-  final List<GlobalKey> _sectionKeys = List.generate(10, (_) => GlobalKey());
+  final List<GlobalKey> _sectionKeys = List.generate(11, (_) => GlobalKey());
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0);
   int _activeSectionIndex = 0;
   DateTime _lastScrollCall = DateTime.now();
+  bool _recruiterMode = false;
 
   @override
   void initState() {
@@ -119,14 +121,20 @@ class _HomePageState extends State<HomePage> {
                     onViewProjects: () => _scrollToSection(4),
                     onContact: () => _scrollToSection(9),
                   )),
-                  _SectionWrapper(key: _sectionKeys[1], child: const WhatIDoSection()),
+                  if (!_recruiterMode)
+                    _SectionWrapper(key: _sectionKeys[1], child: const WhatIDoSection()),
                   _SectionWrapper(key: _sectionKeys[2], child: const AboutSection()),
-                  _SectionWrapper(key: _sectionKeys[3], child: const CurrentWorkSection()),
+                  if (!_recruiterMode)
+                    _SectionWrapper(key: _sectionKeys[3], child: const CurrentWorkSection()),
                   _SectionWrapper(key: _sectionKeys[4], child: const ProjectsSection()),
                   _SectionWrapper(key: _sectionKeys[5], child: const SkillsSection()),
-                  _SectionWrapper(key: _sectionKeys[6], child: const DesignsSection()),
-                  _SectionWrapper(key: _sectionKeys[7], child: const CertificatesSection()),
+                  if (!_recruiterMode)
+                    _SectionWrapper(key: _sectionKeys[6], child: const DesignsSection()),
+                  if (!_recruiterMode)
+                    _SectionWrapper(key: _sectionKeys[7], child: const CertificatesSection()),
                   _SectionWrapper(key: _sectionKeys[8], child: const ExperienceSection()),
+                  if (!_recruiterMode)
+                    _SectionWrapper(key: _sectionKeys[10], child: const LabSection()),
                   _SectionWrapper(key: _sectionKeys[9], child: const ContactSection()),
                   _Footer(isDark: isDark),
                 ],
@@ -149,6 +157,8 @@ class _HomePageState extends State<HomePage> {
                     setState(() {});
                   },
                   onThemeChanged: widget.onThemeChanged,
+                  recruiterMode: _recruiterMode,
+                  onRecruiterModeChanged: (v) => setState(() => _recruiterMode = v),
                 );
               },
             ),
@@ -197,13 +207,13 @@ class _Footer extends StatelessWidget {
               children: [
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'INFORMATICS ENGINEER  ·  FLUTTER DEVELOPER  ·  AI BUILDER',
+                  AppStrings.footerTagline,
                   style: t.label,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  '© $year  Thabit Budeir  —  All rights reserved.',
+                  '© $year  Thabit Budeir  —  ${AppStrings.allRightsReserved}',
                   style: t.monoBodySm,
                   textAlign: TextAlign.center,
                 ),

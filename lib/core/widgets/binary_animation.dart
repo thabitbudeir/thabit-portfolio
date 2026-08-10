@@ -1,7 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../utils/motion_policy.dart';
 
+/// A performance-optimized binary rain background.
+/// 
+/// Refactored to avoid [setState] rebuilds. Animation is now paint-driven
+/// via the [repaint] parameter of the [CustomPainter].
 class BinaryBackground extends StatefulWidget {
   final double height;
   const BinaryBackground({super.key, required this.height});
@@ -29,10 +34,21 @@ class _BinaryBackgroundState extends State<BinaryBackground> with SingleTickerPr
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
-    )..addListener(_updateBits)..repeat();
+    );
 
-    for (int i = 0; i < 30; i++) {
+    // Initial pool of bits
+    for (int i = 0; i < 25; i++) {
       _bits.add(_createBit(initial: true));
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MotionPolicy.shouldAnimate(context)) {
+      if (!_controller.isAnimating) _controller.repeat();
+    } else {
+      _controller.stop();
     }
   }
 
@@ -40,8 +56,9 @@ class _BinaryBackgroundState extends State<BinaryBackground> with SingleTickerPr
     return TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
-          color: AppColors.accent,
+        style: TextStyle(
+          // We use a slightly transparent color here to avoid expensive saveLayers per frame
+          color: AppColors.accent.withValues(alpha: 0.15),
           fontSize: 10,
           fontFamily: 'monospace',
           fontWeight: FontWeight.bold,
@@ -51,25 +68,12 @@ class _BinaryBackgroundState extends State<BinaryBackground> with SingleTickerPr
     )..layout();
   }
 
-  void _updateBits() {
-    if (!mounted) return;
-    setState(() {
-      for (int i = 0; i < _bits.length; i++) {
-        _bits[i].y += _bits[i].speed;
-        if (_bits[i].y > 1.2) {
-          _bits[i] = _createBit();
-        }
-      }
-    });
-  }
-
   _Bit _createBit({bool initial = false}) {
     return _Bit(
       x: _random.nextDouble(),
-      y: initial ? _random.nextDouble() : -0.2,
+      y: initial ? _random.nextDouble() * 1.5 - 0.2 : -0.2,
       value: _random.nextBool() ? "0" : "1",
-      speed: 0.004 + _random.nextDouble() * 0.008,
-      opacity: 0.1 + _random.nextDouble() * 0.25,
+      speed: 0.001 + _random.nextDouble() * 0.002,
     );
   }
 
@@ -81,9 +85,17 @@ class _BinaryBackgroundState extends State<BinaryBackground> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary( // Optimization: Isolate this painting layer
+    // RepaintBoundary ensures that this painting doesn't trigger 
+    // repaints of surrounding widgets.
+    return RepaintBoundary(
       child: CustomPaint(
-        painter: _BinaryPainter(_bits, _tp0, _tp1),
+        painter: _BinaryPainter(
+          bits: _bits,
+          tp0: _tp0,
+          tp1: _tp1,
+          repaint: _controller,
+          onCreateBit: () => _createBit(),
+        ),
         size: Size(double.infinity, widget.height),
       ),
     );
@@ -93,25 +105,44 @@ class _BinaryBackgroundState extends State<BinaryBackground> with SingleTickerPr
 class _Bit {
   double x, y;
   String value;
-  double speed;
-  double opacity;
-  _Bit({required this.x, required this.y, required this.value, required this.speed, required this.opacity});
+  final double speed;
+  _Bit({required this.x, required this.y, required this.value, required this.speed});
 }
 
 class _BinaryPainter extends CustomPainter {
   final List<_Bit> bits;
   final TextPainter tp0;
   final TextPainter tp1;
-  _BinaryPainter(this.bits, this.tp0, this.tp1);
+  final _Bit Function() onCreateBit;
+
+  _BinaryPainter({
+    required this.bits,
+    required this.tp0,
+    required this.tp1,
+    required this.onCreateBit,
+    required Listenable repaint,
+  }) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var bit in bits) {
+    for (int i = 0; i < bits.length; i++) {
+      final bit = bits[i];
+      
+      // Update state during paint - efficient for purely decorative animations
+      bit.y += bit.speed;
+      if (bit.y > 1.2) {
+        bits[i] = onCreateBit();
+      }
+
       final painter = bit.value == "0" ? tp0 : tp1;
+      
       canvas.save();
+      // Translate to bit position
       canvas.translate(bit.x * size.width, bit.y * size.height);
-      // Paint with specific opacity without re-layout
-      painter.paint(canvas, Offset.zero); 
+      
+      // Paint pre-cached text
+      painter.paint(canvas, Offset.zero);
+      
       canvas.restore();
     }
   }

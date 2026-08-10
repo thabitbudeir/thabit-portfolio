@@ -15,18 +15,18 @@ class CurrentWorkSection extends StatelessWidget {
     final projects = [
       _CurrentProject(
         name: 'AURIX',
-        subtitle: 'Smart Tender Management System',
+        subtitle: AppStrings.get(
+          'Smart Tender Management System',
+          'نظام ذكي لإدارة المناقصات',
+          'Intelligentes Ausschreibungsmanagementsystem',
+        ),
         progress: 0.75,
-        status: 'IN DEVELOPMENT',
-        focus: ['AI Document Verification', 'Decision Engine', 'Dashboard Polish'],
-        stage: 2,
-      ),
-      _CurrentProject(
-        name: 'Portfolio System',
-        subtitle: 'Personal brand platform',
-        progress: 0.48,
-        status: 'IN DEVELOPMENT',
-        focus: ['Motion UX', 'Localization', 'Design System'],
+        status: AppStrings.statusInDev,
+        focus: [
+          AppStrings.get('AI Document Verification', 'التحقق من المستندات بالذكاء الاصطناعي', 'KI-Dokumentenprüfung'),
+          AppStrings.get('Decision Engine', 'محرك اتخاذ القرار', 'Entscheidungs-Engine'),
+          AppStrings.get('Dashboard Polish', 'تحسين لوحة التحكم', 'Dashboard-Optimierung'),
+        ],
         stage: 2,
       ),
     ];
@@ -37,32 +37,94 @@ class CurrentWorkSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionCurrent,
-            title: AppStrings.get(
-                'Currently working on.',
-                'ما أعمل عليه الآن.',
-                'Woran ich gerade arbeite.'),
-            subtitle: AppStrings.get(
-              'A live look at what is in motion right now.',
-              'نظرة مباشرة على ما يتم بناؤه الآن.',
-              'Ein aktueller Blick auf laufende Arbeit.',
-            ),
+            title: AppStrings.currentHeadline,
+            subtitle: AppStrings.currentSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
-          ...projects.asMap().entries.map((entry) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: entry.key == projects.length - 1
-                    ? 0
-                    : AppSpacing.lg,
-              ),
-              child: RevealOnScroll(
-                delay: Duration(milliseconds: 120 * entry.key),
-                child: _CurrentWorkCard(project: entry.value),
-              ),
-            );
-          }),
+          LayoutBuilder(
+            builder: (context, c) {
+              final isDesktop = c.maxWidth > 800;
+              return isDesktop 
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 4, child: _CurrentlySummary()),
+                      const SizedBox(width: AppSpacing.xl),
+                      Expanded(flex: 6, child: _buildProjects(projects)),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      _CurrentlySummary(),
+                      const SizedBox(height: AppSpacing.xl),
+                      _buildProjects(projects),
+                    ],
+                  );
+            },
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildProjects(List<_CurrentProject> projects) {
+    return Column(
+      children: projects.asMap().entries.map((entry) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: entry.key == projects.length - 1 ? 0 : AppSpacing.lg,
+          ),
+          child: RevealOnScroll(
+            delay: Duration(milliseconds: 120 * entry.key),
+            child: _CurrentWorkCard(project: entry.value),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _CurrentlySummary extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return EditorialCard(
+      number: 'CURRENTLY',
+      tag: 'STATUS',
+      onTap: () {}, // Make card interactive
+      semanticLabel: 'Current Professional Status',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildItem(context, AppStrings.buildingLabel, 'AURIX (v1.0)'),
+          const SizedBox(height: AppSpacing.md),
+          _buildItem(context, AppStrings.learningLabel, 'Advanced Flutter Architecture'),
+          const SizedBox(height: AppSpacing.md),
+          _buildItem(context, AppStrings.exploringLabel, 'AI × Mobile Systems'),
+          const SizedBox(height: AppSpacing.md),
+          _buildItem(context, AppStrings.availableForLabel, 'Flutter / Mobile Opportunities'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItem(BuildContext context, String label, String value) {
+    final t = AppText.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle)),
+            const SizedBox(width: AppSpacing.sm),
+            Text(label, style: t.labelAccent.copyWith(fontSize: 10)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.only(left: 14),
+          child: Text(value, style: t.monoBody.copyWith(fontSize: 13)),
+        ),
+      ],
     );
   }
 }
@@ -91,26 +153,28 @@ class _CurrentWorkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stages = [
-      'Planning',
-      'Design',
-      'Development',
-      'Testing',
-      'Deploy',
+      AppStrings.stagePlanning,
+      AppStrings.stageDesign,
+      AppStrings.stageDevelopment,
+      AppStrings.stageTesting,
+      AppStrings.stageDeployment,
     ];
     return EditorialCard(
       number: 'NOW',
       tag: project.status,
+      onTap: () {}, // Make card interactive
       padding: const EdgeInsets.all(AppSpacing.xl),
+      semanticLabel: 'Project in development: ${project.name}',
       child: LayoutBuilder(
         builder: (context, c) {
-          final stacked = c.maxWidth < 850;
+          final stacked = c.maxWidth < 500;
           return stacked
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _left(context, stages),
                     const SizedBox(height: AppSpacing.xl),
-                    Hairline(),
+                    const Hairline(),
                     const SizedBox(height: AppSpacing.xl),
                     _right(context, stages),
                   ],
@@ -122,7 +186,7 @@ class _CurrentWorkCard extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xl),
                     Container(
                       width: 1,
-                      height: 220,
+                      height: 180,
                       color: Theme.of(context).brightness == Brightness.dark
                           ? AppColors.darkLine
                           : AppColors.lightLine,
@@ -143,7 +207,7 @@ class _CurrentWorkCard extends StatelessWidget {
       children: [
         Text(project.name, style: t.heading1),
         const SizedBox(height: AppSpacing.xs),
-        Text(project.subtitle, style: t.monoBody),
+        Text(project.subtitle, style: t.monoBody.copyWith(fontSize: 11)),
         const SizedBox(height: AppSpacing.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -152,27 +216,27 @@ class _CurrentWorkCard extends StatelessWidget {
               '${(project.progress * 100).round()}',
               style: t.display2.copyWith(
                 color: AppColors.accent,
-                fontSize: 48,
+                fontSize: 40,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 4),
+              padding: const EdgeInsets.only(bottom: 6, left: 4),
               child: Text('%', style: t.monoBody),
             ),
-            const SizedBox(width: AppSpacing.lg),
+            const SizedBox(width: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.only(bottom: 4),
               child: Text(
-                'PROGRESS',
-                style: t.labelAccent,
+                AppStrings.progressLabel.toUpperCase(),
+                style: t.labelAccent.copyWith(fontSize: 9),
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
         _ProgressBar(value: project.progress),
         const SizedBox(height: AppSpacing.lg),
-        Text('CURRENT FOCUS', style: t.label),
+        Text(AppStrings.currentFocus.toUpperCase(), style: t.label.copyWith(fontSize: 9)),
         const SizedBox(height: AppSpacing.sm),
         ...project.focus.map(
           (item) => Padding(
@@ -180,15 +244,15 @@ class _CurrentWorkCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 4,
-                  height: 4,
+                  width: 3,
+                  height: 3,
                   decoration: const BoxDecoration(
                     color: AppColors.accent,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Text(item, style: t.monoBody),
+                Expanded(child: Text(item, style: t.monoBody.copyWith(fontSize: 10))),
               ],
             ),
           ),
@@ -203,7 +267,7 @@ class _CurrentWorkCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('STAGE', style: t.label),
+        Text(AppStrings.stageLabel, style: t.label.copyWith(fontSize: 9)),
         const SizedBox(height: AppSpacing.md),
         ...stages.asMap().entries.map((entry) {
           final i = entry.key;
@@ -214,8 +278,8 @@ class _CurrentWorkCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: isCurrent ? 12 : 8,
-                  height: isCurrent ? 12 : 8,
+                  width: isCurrent ? 10 : 6,
+                  height: isCurrent ? 10 : 6,
                   decoration: BoxDecoration(
                     color: active
                         ? AppColors.accent
@@ -236,15 +300,15 @@ class _CurrentWorkCard extends StatelessWidget {
                   child: Text(
                     entry.value.toUpperCase(),
                     style: t.monoBody.copyWith(
-                      color: active ? null : null,
-                      letterSpacing: 1.4,
-                      fontSize: 11,
+                      color: active ? null : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
+                      letterSpacing: 1.2,
+                      fontSize: 10,
                       fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
                 ),
                 if (isCurrent)
-                  Text('// now', style: t.labelAccent.copyWith(fontSize: 9)),
+                  Text(AppStrings.nowLabel, style: t.labelAccent.copyWith(fontSize: 8)),
               ],
             ),
           );
@@ -254,7 +318,6 @@ class _CurrentWorkCard extends StatelessWidget {
   }
 }
 
-/// Custom progress bar — a hairline, with a small "tip" marker.
 class _ProgressBar extends StatelessWidget {
   final double value;
   const _ProgressBar({required this.value});
@@ -270,26 +333,26 @@ class _ProgressBar extends StatelessWidget {
           return LayoutBuilder(
             builder: (context, c) {
               return SizedBox(
-                height: 6,
+                height: 4,
                 child: Stack(
                   children: [
                     Container(
                       height: 1,
-                      margin: const EdgeInsets.only(top: 2.5),
+                      margin: const EdgeInsets.only(top: 1.5),
                       color: AppColors.accent.withValues(alpha: 0.15),
                     ),
                     Container(
                       width: c.maxWidth * v,
                       height: 1,
-                      margin: const EdgeInsets.only(top: 2.5),
+                      margin: const EdgeInsets.only(top: 1.5),
                       color: AppColors.accent,
                     ),
                     Positioned(
-                      left: (c.maxWidth * v) - 3,
+                      left: (c.maxWidth * v) - 2,
                       top: 0,
                       child: Container(
-                        width: 6,
-                        height: 6,
+                        width: 4,
+                        height: 4,
                         decoration: const BoxDecoration(
                           color: AppColors.accent,
                           shape: BoxShape.circle,

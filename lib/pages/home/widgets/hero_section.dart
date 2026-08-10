@@ -161,7 +161,7 @@ class _Actions extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         AppButton(
-          label: AppStrings.get('View work', 'عرض الأعمال', 'Arbeit ansehen'),
+          label: AppStrings.viewWork,
           onPressed: onViewProjects,
           showArrow: true,
         ),
@@ -194,28 +194,16 @@ class _BottomMetaRow extends StatelessWidget {
           final wide = c.maxWidth > 720;
           final items = [
             _MetaItem(
-              label: 'STATUS',
-              value: AppStrings.get(
-                'Open to projects',
-                'متاح للمشاريع',
-                'Offen für Projekte',
-              ),
+              label: AppStrings.statusLabel,
+              value: AppStrings.statusOpen,
             ),
             _MetaItem(
-              label: 'FOCUS',
-              value: AppStrings.get(
-                'Flutter · Mobile · AI · UI/UX',
-                'Flutter · موبايل · ذكاء اصطناعي · UI/UX',
-                'Flutter · Mobile · KI · UI/UX',
-              ),
+              label: AppStrings.focusLabel,
+              value: AppStrings.focusValue,
             ),
             _MetaItem(
-              label: 'BASED IN',
-              value: AppStrings.get(
-                'Syria · Remote',
-                'سوريا · عن بُعد',
-                'Syrien · Remote',
-              ),
+              label: AppStrings.basedInLabel,
+              value: AppStrings.basedInValue,
             ),
           ];
 

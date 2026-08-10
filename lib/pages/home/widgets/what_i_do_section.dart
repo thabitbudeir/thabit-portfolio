@@ -14,14 +14,10 @@ class WhatIDoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final domains = [
-      _Domain('01', 'Informatics Engineering',
-          'Systems, architecture thinking, and scalable technical foundations.', 0),
-      _Domain('02', 'Software Development',
-          'Cross-platform product development with clean implementation quality.', 1),
-      _Domain('03', 'Artificial Intelligence',
-          'AI-assisted decision flows, document analysis, and smart automation.', 2),
-      _Domain('04', 'UI/UX Design',
-          'Interfaces with strong hierarchy, usability, and visual personality.', 3),
+      _Domain('01', AppStrings.domainInformatics, AppStrings.domainInformaticsDesc, 0),
+      _Domain('02', AppStrings.domainSoftware, AppStrings.domainSoftwareDesc, 1),
+      _Domain('03', AppStrings.domainAI, AppStrings.domainAIDesc, 2),
+      _Domain('04', AppStrings.domainDesign, AppStrings.domainDesignDesc, 3),
     ];
 
     return SectionShell(
@@ -98,6 +94,8 @@ class _DomainCard extends StatelessWidget {
     final t = AppText.of(context);
     return EditorialCard(
       number: number,
+      onTap: () {}, // Make card interactive
+      semanticLabel: title,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

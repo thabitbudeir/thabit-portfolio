@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_colors.dart';
 import '../theme/design_system.dart';
 import '../theme/typography.dart';
+import '../localization/app_strings.dart';
 import 'buttons.dart';
 import 'editorial_card.dart';
 
@@ -69,130 +70,134 @@ class ProjectDetailsModal extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(AppSpacing.lg),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 920, maxHeight: 720),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-          border: Border.all(color: line, width: 1),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _ModalHeader(
-              title: title,
-              onClose: () => Navigator.of(context).pop(),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _ProjectImage(imageUrl: imageUrl),
-                    const SizedBox(height: AppSpacing.xl),
-                    _Section(
-                      title: 'OVERVIEW',
-                      child: Text(description, style: t.bodyLg),
-                    ),
-                    if (problem != null) ...[
+    return Semantics(
+      explicitChildNodes: true,
+      label: '${AppStrings.projectLabel}: $title',
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(AppSpacing.lg),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 920, maxHeight: 720),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            border: Border.all(color: line, width: 1),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ModalHeader(
+                title: title,
+                onClose: () => Navigator.of(context).pop(),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _ProjectImage(imageUrl: imageUrl),
                       const SizedBox(height: AppSpacing.xl),
                       _Section(
-                        title: 'PROBLEM',
-                        child: Text(problem!, style: t.bodyLg),
+                        title: AppStrings.get('OVERVIEW', 'نظرة عامة', 'ÜBERBLICK'),
+                        child: Text(description, style: t.bodyLg),
                       ),
-                    ],
-                    if (solution != null) ...[
+                      if (problem != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        _Section(
+                          title: AppStrings.problemLabel.toUpperCase(),
+                          child: Text(problem!, style: t.bodyLg),
+                        ),
+                      ],
+                      if (solution != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        _Section(
+                          title: AppStrings.solutionLabel.toUpperCase(),
+                          child: Text(solution!, style: t.bodyLg),
+                        ),
+                      ],
+                      if (role != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        _Section(
+                          title: AppStrings.roleLabel.toUpperCase(),
+                          child: Text(role!, style: t.bodyLg),
+                        ),
+                      ],
                       const SizedBox(height: AppSpacing.xl),
                       _Section(
-                        title: 'SOLUTION',
-                        child: Text(solution!, style: t.bodyLg),
-                      ),
-                    ],
-                    if (role != null) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      _Section(
-                        title: 'MY ROLE',
-                        child: Text(role!, style: t.bodyLg),
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.xl),
-                    _Section(
-                      title: 'TECH STACK',
-                      child: Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.sm,
-                        children:
-                            technologies.map((tech) => TechChip(label: tech)).toList(),
-                      ),
-                    ),
-                    if (features != null && features!.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      _Section(
-                        title: 'KEY FEATURES',
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: features!.map((feature) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: AppSpacing.sm),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Container(
-                                      width: 4,
-                                      height: 4,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.accent,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppSpacing.md),
-                                  Expanded(
-                                    child: Text(feature, style: t.body),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                        title: AppStrings.technologiesLabel.toUpperCase(),
+                        child: Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          children:
+                              technologies.map((tech) => TechChip(label: tech)).toList(),
                         ),
                       ),
-                    ],
-                    const SizedBox(height: AppSpacing.xl),
-                    Row(
-                      children: [
-                        if (githubUrl != null) ...[
-                          Expanded(
-                            child: AppButton(
-                              label: 'GITHUB',
-                              kind: ButtonKind.secondary,
-                              onPressed: () => _launchURL(githubUrl!),
-                            ),
+                      if (features != null && features!.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        _Section(
+                          title: AppStrings.featuresLabel.toUpperCase(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: features!.map((feature) {
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: AppSpacing.sm),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Container(
+                                        width: 4,
+                                        height: 4,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.accent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppSpacing.md),
+                                    Expanded(
+                                      child: Text(feature, style: t.body),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                           ),
-                          const SizedBox(width: AppSpacing.md),
-                        ],
-                        if (demoUrl != null)
-                          Expanded(
-                            child: AppButton(
-                              label: 'LIVE DEMO',
-                              kind: ButtonKind.primary,
-                              showArrow: true,
-                              onPressed: () => _launchURL(demoUrl!),
-                            ),
-                          ),
+                        ),
                       ],
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.xl),
+                      Row(
+                        children: [
+                          if (githubUrl != null) ...[
+                            Expanded(
+                              child: AppButton(
+                                label: AppStrings.githubLabel,
+                                kind: ButtonKind.secondary,
+                                onPressed: () => _launchURL(githubUrl!),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                          ],
+                          if (demoUrl != null)
+                            Expanded(
+                              child: AppButton(
+                                label: AppStrings.liveDemoLabel,
+                                kind: ButtonKind.primary,
+                                showArrow: true,
+                                onPressed: () => _launchURL(demoUrl!),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -206,10 +211,17 @@ class ProjectDetailsModal extends StatelessWidget {
   }
 }
 
-class _ModalHeader extends StatelessWidget {
+class _ModalHeader extends StatefulWidget {
   final String title;
   final VoidCallback onClose;
   const _ModalHeader({required this.title, required this.onClose});
+
+  @override
+  State<_ModalHeader> createState() => _ModalHeaderState();
+}
+
+class _ModalHeaderState extends State<_ModalHeader> {
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
@@ -237,19 +249,37 @@ class _ModalHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              title,
+              widget.title,
               style: t.heading2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          GestureDetector(
-            onTap: onClose,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Icon(
-                Icons.close_rounded,
-                size: 18,
-                color: isDark ? AppColors.darkInk : AppColors.lightInk,
+          FocusableActionDetector(
+            onShowFocusHighlight: (v) => setState(() => _focused = v),
+            mouseCursor: SystemMouseCursors.click,
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) => widget.onClose(),
+              ),
+            },
+            child: Semantics(
+              button: true,
+              label: AppStrings.closeLabel,
+              child: GestureDetector(
+                onTap: widget.onClose,
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: _focused ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: _focused ? AppColors.accent : Colors.transparent, width: 1),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: isDark ? AppColors.darkInk : AppColors.lightInk,
+                  ),
+                ),
               ),
             ),
           ),

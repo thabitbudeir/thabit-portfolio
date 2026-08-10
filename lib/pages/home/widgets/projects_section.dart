@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/animations/animations.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/case_study_modal.dart';
 import '../../../core/widgets/editorial_card.dart';
 import '../../../core/widgets/project_details_modal.dart';
 import '../../../core/widgets/ui_primitives.dart';
@@ -22,13 +24,8 @@ class ProjectsSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionProjects,
-            title: AppStrings.get('Selected projects.',
-                'مشاريع مختارة.', 'Ausgewählte Projekte.'),
-            subtitle: AppStrings.get(
-              'Real products, real problems, real systems. Each entry below is a product-shaped body of work, not a screenshot.',
-              'منتجات حقيقية، مشاكل حقيقية، أنظمة حقيقية. كل عنصر هنا هو عمل بمنتج متكامل، وليس لقطة شاشة.',
-              'Echte Produkte, echte Probleme, echte Systeme. Jeder Eintrag ist produktförmige Arbeit, kein Screenshot.',
-            ),
+            title: AppStrings.projectsHeadline,
+            subtitle: AppStrings.projectsSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
           ...projects.asMap().entries.map((entry) {
@@ -57,35 +54,26 @@ class ProjectsSection extends StatelessWidget {
   }
 }
 
-/// Featured project — full-width product spotlight with accent edge.
+/// Featured project — full-width product spotlight using EditorialCard for consistency.
 class _FeaturedProjectEntry extends StatelessWidget {
   final Project project;
   const _FeaturedProjectEntry({required this.project});
 
   @override
   Widget build(BuildContext context) {
-    final t = AppText.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final line = isDark ? AppColors.darkLine : AppColors.lightLine;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          left: const BorderSide(color: AppColors.accent, width: 2),
-          top: BorderSide(color: line, width: 1),
-          right: BorderSide(color: line, width: 1),
-          bottom: BorderSide(color: line, width: 1),
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    return EditorialCard(
+      tag: AppStrings.featuredLabel,
+      number: project.number,
+      overrideBorder: AppColors.accent,
+      onTap: () => CaseStudyModal.show(context, project),
+      semanticLabel: '${AppStrings.featuredLabel}: ${project.name}',
       child: LayoutBuilder(
         builder: (context, c) {
           final stacked = c.maxWidth < 920;
           final media = _ProjectMedia(
             imageUrl: project.imageUrl,
             name: project.name,
+            onTap: () => CaseStudyModal.show(context, project),
           );
           final body = _ProjectBody(project: project, number: '01');
 
@@ -93,14 +81,7 @@ class _FeaturedProjectEntry extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text('FEATURED', style: t.labelAccent),
-                    const SizedBox(width: AppSpacing.md),
-                    Container(width: 32, height: 1, color: AppColors.accent),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
                 media,
                 const SizedBox(height: AppSpacing.xl),
                 body,
@@ -111,16 +92,7 @@ class _FeaturedProjectEntry extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text('FEATURED', style: t.labelAccent),
-                  const SizedBox(width: AppSpacing.md),
-                  Container(width: 32, height: 1, color: AppColors.accent),
-                  const Spacer(),
-                  Text(project.number, style: t.label),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -150,33 +122,64 @@ class _ProjectEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, c) {
-        final stacked = c.maxWidth < 920;
-        final number = (index + 1).toString().padLeft(2, '0');
+    final number = (index + 1).toString().padLeft(2, '0');
+    
+    return EditorialCard(
+      number: number,
+      onTap: () => _openDetails(context),
+      semanticLabel: '${AppStrings.projectLabel}: ${project.name}',
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final stacked = c.maxWidth < 920;
 
-        final media = _ProjectMedia(
-          imageUrl: project.imageUrl,
-          name: project.name,
-        );
-        final body = _ProjectBody(project: project, number: number);
+          final media = _ProjectMedia(
+            imageUrl: project.imageUrl,
+            name: project.name,
+            onTap: () => _openDetails(context),
+          );
+          final body = _ProjectBody(project: project, number: number);
 
-        final children = stacked
-            ? [media, const SizedBox(height: AppSpacing.xl), body]
-            : isReverse
-                ? [Expanded(child: body), const SizedBox(width: AppSpacing.xxl), Expanded(child: media)]
-                : [Expanded(child: media), const SizedBox(width: AppSpacing.xxl), Expanded(child: body)];
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          if (stacked) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
-            ),
-          ],
-        );
-      },
+              children: [
+                media,
+                const SizedBox(height: AppSpacing.xl),
+                body,
+              ],
+            );
+          }
+
+          final children = isReverse
+              ? [Expanded(child: body), const SizedBox(width: AppSpacing.xxl), Expanded(child: media)]
+              : [Expanded(child: media), const SizedBox(width: AppSpacing.xxl), Expanded(child: body)];
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
+          );
+        },
+      ),
+    );
+  }
+
+  void _openDetails(BuildContext context) {
+    if (project.id == 'aurix') {
+      CaseStudyModal.show(context, project);
+      return;
+    }
+    ProjectDetailsModal.show(
+      context: context,
+      title: project.name,
+      description: project.longDescription,
+      problem: project.problem,
+      solution: project.solution,
+      role: project.role,
+      technologies: project.technologies.split('·').map((e) => e.trim()).toList(),
+      features: project.keyFeatures.split('\n'),
+      githubUrl: project.githubUrl,
+      demoUrl: project.demoUrl,
+      imageUrl: project.imageUrl,
     );
   }
 }
@@ -184,7 +187,8 @@ class _ProjectEntry extends StatelessWidget {
 class _ProjectMedia extends StatefulWidget {
   final String imageUrl;
   final String name;
-  const _ProjectMedia({required this.imageUrl, required this.name});
+  final VoidCallback onTap;
+  const _ProjectMedia({required this.imageUrl, required this.name, required this.onTap});
 
   @override
   State<_ProjectMedia> createState() => _ProjectMediaState();
@@ -192,87 +196,96 @@ class _ProjectMedia extends StatefulWidget {
 
 class _ProjectMediaState extends State<_ProjectMedia> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AspectRatio(
-        aspectRatio: 4 / 3,
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-            border: Border.all(
-              color: _hovered
-                  ? AppColors.accent.withValues(alpha: 0.5)
-                  : (isDark ? AppColors.darkLine : AppColors.lightLine),
-              width: 1,
+    final active = _hovered || _focused;
+
+    return FocusableActionDetector(
+      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      onShowHoverHighlight: (v) => setState(() => _hovered = v),
+      mouseCursor: SystemMouseCursors.click,
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap()),
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AspectRatio(
+          aspectRatio: 4 / 3,
+          child: AnimatedContainer(
+            duration: AppMotion.base,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              border: Border.all(
+                color: active
+                    ? AppColors.accent.withValues(alpha: 0.8)
+                    : (isDark ? AppColors.darkLine : AppColors.lightLine),
+                width: _focused ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  child: AnimatedScale(
-                    scale: _hovered ? 1.02 : 1.0,
-                    duration: AppMotion.slow,
-                    curve: AppMotion.standard,
-                    child: Image.asset(
-                      widget.imageUrl,
-                      fit: BoxFit.cover,
-                      cacheWidth: 1200,
-                      errorBuilder: (context, error, stack) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.accent.withValues(alpha: 0.12),
-                                Colors.transparent,
-                              ],
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    child: AnimatedScale(
+                      scale: active ? 1.02 : 1.0,
+                      duration: AppMotion.slow,
+                      curve: AppMotion.standard,
+                      child: Image.asset(
+                        widget.imageUrl,
+                        fit: BoxFit.cover,
+                        cacheWidth: 1200,
+                        errorBuilder: (context, error, stack) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppColors.accent.withValues(alpha: 0.12),
+                                  Colors.transparent,
+                                ],
+                              ),
                             ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'PROJECT.IMAGE',
-                            style: t.labelAccent.copyWith(letterSpacing: 2.4),
-                          ),
-                        );
-                      },
+                            alignment: Alignment.center,
+                            child: Text(
+                              'PROJECT.IMAGE',
+                              style: t.labelAccent.copyWith(letterSpacing: 2.4),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Corner brackets — technical-document vibe
-              Positioned(
-                top: AppSpacing.md,
-                left: AppSpacing.md,
-                child: _CornerBracket(isTopLeft: true, hovered: _hovered),
-              ),
-              Positioned(
-                top: AppSpacing.md,
-                right: AppSpacing.md,
-                child: _CornerBracket(isTopLeft: false, hovered: _hovered),
-              ),
-              Positioned(
-                bottom: AppSpacing.md,
-                left: AppSpacing.md,
-                child: _CornerBracket(
-                    isTopLeft: true, hovered: _hovered, rotate: 3),
-              ),
-              Positioned(
-                bottom: AppSpacing.md,
-                right: AppSpacing.md,
-                child: _CornerBracket(
-                    isTopLeft: false, hovered: _hovered, rotate: 3),
-              ),
-            ],
+                // Corner brackets
+                Positioned(
+                  top: AppSpacing.md,
+                  left: AppSpacing.md,
+                  child: _CornerBracket(isTopLeft: true, hovered: active),
+                ),
+                Positioned(
+                  top: AppSpacing.md,
+                  right: AppSpacing.md,
+                  child: _CornerBracket(isTopLeft: false, hovered: active),
+                ),
+                Positioned(
+                  bottom: AppSpacing.md,
+                  left: AppSpacing.md,
+                  child: _CornerBracket(isTopLeft: true, hovered: active, rotate: 3),
+                ),
+                Positioned(
+                  bottom: AppSpacing.md,
+                  right: AppSpacing.md,
+                  child: _CornerBracket(isTopLeft: false, hovered: active, rotate: 3),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -354,18 +367,20 @@ class _ProjectBody extends StatelessWidget {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
+    
+    final hasCaseStudy = project.id == 'aurix';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // 01 / AURIX — the "this is project number X" voice
         Row(
           children: [
             Text(number, style: t.labelAccent),
             const SizedBox(width: AppSpacing.md),
             Container(width: 16, height: 1, color: AppColors.accent),
             const SizedBox(width: AppSpacing.md),
-            Text('PROJECT', style: t.label),
+            Text(AppStrings.projectLabel, style: t.label),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -377,27 +392,43 @@ class _ProjectBody extends StatelessWidget {
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: technologies
-              .map((tech) => TechChip(label: tech, dense: true))
+              .map<Widget>((tech) => TechChip(label: tech, dense: true))
               .toList(),
         ),
         const SizedBox(height: AppSpacing.lg),
         if (project.role.isNotEmpty)
           Text(
-            '${AppStrings.get("Role", "الدور", "Rolle")}  →  ${project.role}',
+            '${AppStrings.roleLabel}  →  ${project.role}',
             style: t.monoBodySm,
           ),
         const SizedBox(height: AppSpacing.xl),
-        AppButton(
-          label: AppStrings.viewProject,
-          kind: ButtonKind.ghost,
-          showArrow: true,
-          onPressed: () => _open(context),
+        Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            if (hasCaseStudy)
+              AppButton(
+                label: AppStrings.viewCaseStudy,
+                onPressed: () => CaseStudyModal.show(context, project),
+                showArrow: true,
+              ),
+            AppButton(
+              label: hasCaseStudy ? AppStrings.githubLabel : AppStrings.viewProject,
+              kind: hasCaseStudy ? ButtonKind.secondary : ButtonKind.ghost,
+              showArrow: !hasCaseStudy,
+              onPressed: () => _handleOpen(context),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  void _open(BuildContext context) {
+  void _handleOpen(BuildContext context) {
+    if (project.id == 'aurix' && project.githubUrl != null) {
+      _launch(project.githubUrl!);
+      return;
+    }
     ProjectDetailsModal.show(
       context: context,
       title: project.name,
@@ -405,14 +436,18 @@ class _ProjectBody extends StatelessWidget {
       problem: project.problem,
       solution: project.solution,
       role: project.role,
-      technologies: project.technologies
-          .split('·')
-          .map((e) => e.trim())
-          .toList(),
+      technologies: project.technologies.split('·').map((e) => e.trim()).toList(),
       features: project.keyFeatures.split('\n'),
       githubUrl: project.githubUrl,
       demoUrl: project.demoUrl,
       imageUrl: project.imageUrl,
     );
+  }
+
+  Future<void> _launch(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
   }
 }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../utils/motion_policy.dart';
 
 /// SignatureMark — A purely geometric, "Tech Logo" style monogram for "th".
 /// 
-/// Optimized for performance by using simple shapes and minimizing rebuilds.
+/// Optimized for performance: 
+/// - Paint-driven animation (no AnimatedBuilder rebuilds).
+/// - Respects reduced motion.
 class SignatureMark extends StatefulWidget {
   final double height;
   final Color? tint;
@@ -24,21 +27,28 @@ class SignatureMark extends StatefulWidget {
 
 class _SignatureMarkState extends State<SignatureMark>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1200),
-  );
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOutExpo,
-  );
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutExpo,
+    );
+
     if (widget.animated) {
       Future.delayed(widget.animationDelay, () {
-        if (mounted) _controller.forward();
+        if (mounted && MotionPolicy.shouldAnimate(context)) {
+          _controller.forward();
+        } else if (mounted) {
+          _controller.value = 1.0;
+        }
       });
     } else {
       _controller.value = 1.0;
@@ -56,31 +66,28 @@ class _SignatureMarkState extends State<SignatureMark>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = widget.tint ?? (isDark ? AppColors.accent : AppColors.lightInk);
 
-    return RepaintBoundary( // Performance: Isolate the paint layer
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, _) {
-          return CustomPaint(
-            size: Size(widget.height * 1.5, widget.height),
-            painter: _GeometricTHPainter(
-              progress: _animation.value,
-              color: color,
-            ),
-          );
-        },
+    return RepaintBoundary(
+      child: CustomPaint(
+        size: Size(widget.height * 1.5, widget.height),
+        painter: _GeometricTHPainter(
+          animation: _animation,
+          color: color,
+        ),
       ),
     );
   }
 }
 
 class _GeometricTHPainter extends CustomPainter {
-  final double progress;
+  final Animation<double> animation;
   final Color color;
 
-  _GeometricTHPainter({required this.progress, required this.color});
+  _GeometricTHPainter({required this.animation, required this.color})
+      : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
+    final progress = animation.value;
     if (progress <= 0) return;
 
     final paint = Paint()
@@ -92,8 +99,6 @@ class _GeometricTHPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // The logic below is very lightweight as it uses simple line drawing.
-    
     void drawLine(Offset p1, Offset p2, double startP, double endP) {
       if (progress < startP) return;
       final segmentP = ((progress - startP) / (endP - startP)).clamp(0.0, 1.0);
@@ -101,21 +106,20 @@ class _GeometricTHPainter extends CustomPainter {
     }
 
     // Geometric 't'
-    drawLine(Offset(w * 0.2, h * 0.1), Offset(w * 0.2, h * 0.8), 0.0, 0.4); // Vertical
-    drawLine(Offset(w * 0.05, h * 0.35), Offset(w * 0.35, h * 0.35), 0.2, 0.5); // Crossbar
+    drawLine(Offset(w * 0.2, h * 0.1), Offset(w * 0.2, h * 0.8), 0.0, 0.4); 
+    drawLine(Offset(w * 0.05, h * 0.35), Offset(w * 0.35, h * 0.35), 0.2, 0.5); 
 
     // Geometric 'h'
-    drawLine(Offset(w * 0.5, h * 0.1), Offset(w * 0.5, h * 0.8), 0.3, 0.7); // Vertical
-    drawLine(Offset(w * 0.5, h * 0.45), Offset(w * 0.8, h * 0.45), 0.6, 0.8); // Bridge
-    drawLine(Offset(w * 0.8, h * 0.45), Offset(w * 0.8, h * 0.8), 0.8, 1.0); // Leg
+    drawLine(Offset(w * 0.5, h * 0.1), Offset(w * 0.5, h * 0.8), 0.3, 0.7); 
+    drawLine(Offset(w * 0.5, h * 0.45), Offset(w * 0.8, h * 0.45), 0.6, 0.8); 
+    drawLine(Offset(w * 0.8, h * 0.45), Offset(w * 0.8, h * 0.8), 0.8, 1.0); 
 
     // Technical Underline
-    final linePaint = Paint()
-      ..color = color.withOpacity(0.5)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
     if (progress > 0.8) {
+      final linePaint = Paint()
+        ..color = color.withOpacity(0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
       final lineP = ((progress - 0.8) / 0.2).clamp(0.0, 1.0);
       canvas.drawLine(Offset(w * 0.05, h * 0.95), Offset(w * 0.05 + (w * 0.9) * lineP, h * 0.95), linePaint);
     }
@@ -123,5 +127,5 @@ class _GeometricTHPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GeometricTHPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.color != color;
+      oldDelegate.color != color;
 }

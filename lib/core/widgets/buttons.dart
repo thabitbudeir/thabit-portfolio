@@ -12,6 +12,7 @@ class AppButton extends StatefulWidget {
   final IconData? leadingIcon;
   final bool showArrow;
   final bool compact;
+  final String? semanticLabel;
 
   const AppButton({
     super.key,
@@ -21,6 +22,7 @@ class AppButton extends StatefulWidget {
     this.leadingIcon,
     this.showArrow = false,
     this.compact = false,
+    this.semanticLabel,
   });
 
   @override
@@ -46,7 +48,7 @@ class _AppButtonState extends State<AppButton> {
 
     switch (widget.kind) {
       case ButtonKind.primary:
-        background = _hovered || _focused
+        background = (_hovered || _focused)
             ? AppColors.accentDeep
             : AppColors.accent;
         foreground = const Color(0xFF0B0C0A);
@@ -54,17 +56,17 @@ class _AppButtonState extends State<AppButton> {
         break;
       case ButtonKind.secondary:
         background = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-        foreground = _hovered || _focused ? AppColors.accent : ink;
-        borderColor = _hovered || _focused ? AppColors.accent : line;
+        foreground = (_hovered || _focused) ? AppColors.accent : ink;
+        borderColor = (_hovered || _focused) ? AppColors.accent : line;
         break;
       case ButtonKind.ghost:
         background = Colors.transparent;
-        foreground = _hovered || _focused ? AppColors.accent : ink;
-        borderColor = _hovered || _focused ? AppColors.accent : line;
+        foreground = (_hovered || _focused) ? AppColors.accent : ink;
+        borderColor = (_hovered || _focused) ? AppColors.accent : line;
         break;
       case ButtonKind.link:
         background = Colors.transparent;
-        foreground = _hovered || _focused ? AppColors.accent : ink;
+        foreground = (_hovered || _focused) ? AppColors.accent : ink;
         borderColor = null;
         break;
     }
@@ -73,21 +75,19 @@ class _AppButtonState extends State<AppButton> {
     final vPad = widget.compact ? 10.0 : 14.0;
     final lift = _hovered && !disabled ? -1.0 : 0.0;
 
-    return FocusableActionDetector(
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            widget.onPressed?.call();
-            return null;
-          },
-        ),
-      },
-      child: MouseRegion(
-        cursor:
-            disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel ?? widget.label,
+      enabled: !disabled,
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
+        mouseCursor: disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => widget.onPressed?.call(),
+          ),
+        },
         child: GestureDetector(
           onTap: widget.onPressed,
           child: AnimatedContainer(

@@ -21,15 +21,8 @@ class ExperienceSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionExperience,
-            title: AppStrings.get(
-                'Trajectory.',
-                'المسار المهني.',
-                'Werdegang.'),
-            subtitle: AppStrings.get(
-              'Where I have been, what I have been doing, and what it has built.',
-              'أين كنت، ماذا فعلت، وما الذي بنيناه.',
-              'Wo ich war, was ich getan habe und was es aufgebaut hat.',
-            ),
+            title: AppStrings.experienceHeadline,
+            subtitle: AppStrings.experienceSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
           RevealOnScroll(
@@ -37,7 +30,7 @@ class ExperienceSection extends StatelessWidget {
               children: [
                 _TimelineBlock(
                   tag: 'WORK',
-                  title: AppStrings.get('Experience', 'الخبرة', 'Erfahrung'),
+                  title: AppStrings.experienceWork,
                   items: experience
                       .map((e) => _TimelineData(
                             date: e.period,
@@ -50,7 +43,7 @@ class ExperienceSection extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
                 _TimelineBlock(
                   tag: 'EDU',
-                  title: AppStrings.get('Education', 'التعليم', 'Ausbildung'),
+                  title: AppStrings.experienceEdu,
                   items: education
                       .map((e) => _TimelineData(
                             date: e.period,
@@ -99,6 +92,8 @@ class _TimelineBlock extends StatelessWidget {
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
     return EditorialCard(
       tag: tag,
+      onTap: () {}, // Added to make card interactive
+      semanticLabel: title,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -107,7 +102,7 @@ class _TimelineBlock extends StatelessWidget {
           Hairline(),
           const SizedBox(height: AppSpacing.lg),
           if (items.isEmpty)
-            Text('// coming soon', style: t.labelAccent)
+            Text(AppStrings.comingSoon, style: t.labelAccent)
           else
             ...items.asMap().entries.map((entry) {
               final idx = entry.key;
@@ -124,7 +119,7 @@ class _TimelineBlock extends StatelessWidget {
                           Container(
                             width: 10,
                             height: 10,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.accent,
                               shape: BoxShape.circle,
                             ),
