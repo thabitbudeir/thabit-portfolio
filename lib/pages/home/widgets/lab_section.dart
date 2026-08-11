@@ -20,7 +20,7 @@ class LabSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionLab,
-            title: AppStrings.get('Engineering Lab.', 'المختبر الهندسي.', 'Technik-Labor.'),
+            title: AppStrings.labSectionTitle,
             subtitle: AppStrings.labHeadline,
           ),
           const SizedBox(height: AppSpacing.xxl),
@@ -80,9 +80,16 @@ class _LabCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              Text(AppStrings.labExplore, style: t.button.copyWith(fontSize: 11)),
+              Text(
+                AppStrings.labExplore,
+                style: t.button.copyWith(fontSize: 11),
+              ),
               const SizedBox(width: AppSpacing.sm),
-              const Icon(Icons.arrow_forward_rounded, size: 12, color: AppColors.accent),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 12,
+                color: AppColors.accent,
+              ),
             ],
           ),
         ],
@@ -131,13 +138,20 @@ class _LabDetailsModal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            _buildSection(context, AppStrings.labApproach, item.technicalApproach),
+            _buildSection(
+              context,
+              AppStrings.labApproach,
+              item.technicalApproach,
+            ),
             const SizedBox(height: AppSpacing.lg),
             if (item.result != null) ...[
-              _buildSection(context, 'RESULT', item.result!),
+              _buildSection(context, AppStrings.labResultTitle, item.result!),
               const SizedBox(height: AppSpacing.lg),
             ],
-            Text('${AppStrings.labStatus}: ${item.status}', style: t.labelAccent),
+            Text(
+              '${AppStrings.labStatus}: ${item.status}',
+              style: t.labelAccent,
+            ),
           ],
         ),
       ),

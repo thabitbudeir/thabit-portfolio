@@ -29,8 +29,8 @@ class CertificatesSection extends StatelessWidget {
               final columns = c.maxWidth >= 1080
                   ? 3
                   : c.maxWidth >= 720
-                      ? 2
-                      : 1;
+                  ? 2
+                  : 1;
               final width = columns == 1
                   ? c.maxWidth
                   : (c.maxWidth - AppSpacing.lg * (columns - 1)) / columns;
@@ -77,7 +77,8 @@ class _CertCardState extends State<_CertCard> {
 
     return Semantics(
       button: true,
-      label: '${AppStrings.viewCertificate}: ${widget.certificate.title} from ${widget.certificate.organization}',
+      label:
+          '${AppStrings.viewCertificate}: ${widget.certificate.title.value} from ${widget.certificate.organization.value}',
       child: FocusableActionDetector(
         onShowFocusHighlight: (v) => setState(() => _focused = v),
         onShowHoverHighlight: (v) => setState(() => _hovered = v),
@@ -162,11 +163,11 @@ class _CertCardState extends State<_CertCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.certificate.organization.toUpperCase(),
+                        widget.certificate.organization.value.toUpperCase(),
                         style: t.labelAccent,
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(widget.certificate.title, style: t.heading3),
+                      Text(widget.certificate.title.value, style: t.heading3),
                       const SizedBox(height: AppSpacing.md),
                       Row(
                         children: [
@@ -201,7 +202,7 @@ class _CertCardState extends State<_CertCard> {
     ImagePreviewModal.show(
       context: context,
       imageUrl: widget.certificate.imageUrl,
-      title: widget.certificate.title,
+      title: widget.certificate.title.value,
     );
   }
 }

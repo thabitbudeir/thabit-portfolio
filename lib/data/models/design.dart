@@ -1,7 +1,9 @@
+import '../../core/localization/localized_string.dart';
+
 class Design {
   final String id;
-  final String title;
-  final String category;
+  final LocalizedString title;
+  final LocalizedString category;
   final String imageUrl;
   final bool isLarge;
 
@@ -16,26 +18,48 @@ class Design {
 
 class DesignData {
   static List<Design> get designs => [
-    // Add real design images when available
-    // This is a placeholder structure
     Design(
-      id: 'design1',
-      title: 'Mobile App Interface',
-      category: 'Mobile Design',
-      imageUrl: 'assets/designs/design1.jpg',
+      id: 'aurix-design',
+      title: const LocalizedString(
+        en: 'AURIX - Smart Tender System',
+        ar: 'أوريكس - نظام المناقصات الذكي',
+      ),
+      category: const LocalizedString(en: 'Product Design', ar: 'تصميم المنتج'),
+      imageUrl: 'assets/designs/AURIX/1.png',
       isLarge: true,
     ),
     Design(
-      id: 'design2',
-      title: 'Dashboard UI',
-      category: 'Web Design',
-      imageUrl: 'assets/designs/design2.jpg',
+      id: 'nabdh-design',
+      title: const LocalizedString(
+        en: 'NABDH - Shopping App',
+        ar: 'نبض - تطبيق تسوق',
+      ),
+      category: const LocalizedString(
+        en: 'Mobile UI/UX',
+        ar: 'تصميم واجهات الجوال',
+      ),
+      imageUrl: 'assets/designs/NABDH/1.png',
     ),
     Design(
-      id: 'design3',
-      title: 'E-commerce Flow',
-      category: 'UX Design',
-      imageUrl: 'assets/designs/design3.jpg',
+      id: 'fodoora-design',
+      title: const LocalizedString(
+        en: 'Fodoora - Restaurant App',
+        ar: 'فدورة - تطبيق مطاعم',
+      ),
+      category: const LocalizedString(
+        en: 'UX Case Study',
+        ar: 'دراسة حالة تجربة المستخدم',
+      ),
+      imageUrl: 'assets/designs/Fodoora/fodoora.png',
+    ),
+    Design(
+      id: 'dashboard-ui',
+      title: const LocalizedString(
+        en: 'Enterprise Dashboard',
+        ar: 'لوحة تحكم مؤسسية',
+      ),
+      category: const LocalizedString(en: 'Web Interface', ar: 'واجهة ويب'),
+      imageUrl: 'assets/designs/Dashboard UI/1.png',
     ),
   ];
 }

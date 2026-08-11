@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/animations/animations.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/localization/tech_labels.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/editorial_card.dart';
@@ -28,8 +29,8 @@ class SkillsSection extends StatelessWidget {
               final columns = c.maxWidth >= 1100
                   ? 3
                   : c.maxWidth >= 760
-                      ? 2
-                      : 1;
+                  ? 2
+                  : 1;
               return Wrap(
                 spacing: AppSpacing.lg,
                 runSpacing: AppSpacing.lg,
@@ -83,7 +84,9 @@ class _SkillGroup extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: category.skills
-                .map<Widget>((skill) => TechChip(label: skill, dense: true))
+                .map<Widget>(
+                  (skill) => TechChip(label: TechLabels.of(skill), dense: true),
+                )
                 .toList(),
           ),
         ],

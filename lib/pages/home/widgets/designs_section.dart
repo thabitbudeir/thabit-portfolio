@@ -24,9 +24,7 @@ class DesignsSection extends StatelessWidget {
             subtitle: AppStrings.designsSub,
           ),
           const SizedBox(height: AppSpacing.xxl),
-          RevealOnScroll(
-            child: _BentoGrid(designs: designs),
-          ),
+          RevealOnScroll(child: _BentoGrid(designs: designs)),
         ],
       ),
     );
@@ -46,16 +44,17 @@ class _BentoGrid extends StatelessWidget {
         if (!isMid) {
           return Column(
             children: designs
-                .map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: _DesignTile(design: item, height: 240),
-                    ))
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    child: _DesignTile(design: item, height: 240),
+                  ),
+                )
                 .toList(),
           );
         }
         final columns = isWide ? 3 : 2;
-        final width =
-            (c.maxWidth - (AppSpacing.lg * (columns - 1))) / columns;
+        final width = (c.maxWidth - (AppSpacing.lg * (columns - 1))) / columns;
         return Wrap(
           spacing: AppSpacing.lg,
           runSpacing: AppSpacing.lg,
@@ -63,10 +62,7 @@ class _BentoGrid extends StatelessWidget {
             final large = item.isLarge && isWide;
             return SizedBox(
               width: large ? (width * 2 + AppSpacing.lg) : width,
-              child: _DesignTile(
-                design: item,
-                height: large ? 360 : 240,
-              ),
+              child: _DesignTile(design: item, height: large ? 360 : 240),
             );
           }).toList(),
         );
@@ -95,7 +91,7 @@ class _DesignTileState extends State<_DesignTile> {
 
     return Semantics(
       button: true,
-      label: '${AppStrings.viewDesign}: ${widget.design.title}',
+      label: '${AppStrings.viewDesign}: ${widget.design.title.value}',
       child: FocusableActionDetector(
         onShowFocusHighlight: (v) => setState(() => _focused = v),
         onShowHoverHighlight: (v) => setState(() => _hovered = v),
@@ -116,8 +112,8 @@ class _DesignTileState extends State<_DesignTile> {
                 color: active
                     ? AppColors.accent.withValues(alpha: 0.8)
                     : (Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkLine
-                        : AppColors.lightLine),
+                          ? AppColors.darkLine
+                          : AppColors.lightLine),
                 width: _focused ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(AppRadius.md),
@@ -140,7 +136,7 @@ class _DesignTileState extends State<_DesignTile> {
                             color: AppColors.accentDim,
                             alignment: Alignment.center,
                             child: Text(
-                              widget.design.title.toUpperCase(),
+                              widget.design.title.value.toUpperCase(),
                               style: t.labelAccent.copyWith(letterSpacing: 2.4),
                             ),
                           );
@@ -175,11 +171,11 @@ class _DesignTileState extends State<_DesignTile> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                widget.design.title,
+                                widget.design.title.value,
                                 style: t.heading3.copyWith(color: Colors.white),
                               ),
                               Text(
-                                widget.design.category,
+                                widget.design.category.value,
                                 style: t.label.copyWith(
                                   color: AppColors.accent,
                                   fontSize: 9,
@@ -209,7 +205,7 @@ class _DesignTileState extends State<_DesignTile> {
     ImagePreviewModal.show(
       context: context,
       imageUrl: widget.design.imageUrl,
-      title: widget.design.title,
+      title: widget.design.title.value,
     );
   }
 }

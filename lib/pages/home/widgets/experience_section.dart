@@ -32,12 +32,14 @@ class ExperienceSection extends StatelessWidget {
                   tag: 'WORK',
                   title: AppStrings.experienceWork,
                   items: experience
-                      .map((e) => _TimelineData(
-                            date: e.period,
-                            role: e.title,
-                            org: e.organization,
-                            description: e.description ?? '',
-                          ))
+                      .map(
+                        (e) => _TimelineData(
+                          date: e.period,
+                          role: e.title.value,
+                          org: e.organization.value,
+                          description: e.description?.value ?? '',
+                        ),
+                      )
                       .toList(),
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -45,12 +47,14 @@ class ExperienceSection extends StatelessWidget {
                   tag: 'EDU',
                   title: AppStrings.experienceEdu,
                   items: education
-                      .map((e) => _TimelineData(
-                            date: e.period,
-                            role: e.degree,
-                            org: e.institution,
-                            description: e.specialization ?? '',
-                          ))
+                      .map(
+                        (e) => _TimelineData(
+                          date: e.period,
+                          role: e.degree.value,
+                          org: e.institution.value,
+                          description: e.specialization?.value ?? '',
+                        ),
+                      )
                       .toList(),
                 ),
               ],
@@ -125,12 +129,7 @@ class _TimelineBlock extends StatelessWidget {
                             ),
                           ),
                           if (!last)
-                            Expanded(
-                              child: Container(
-                                width: 1,
-                                color: line,
-                              ),
-                            ),
+                            Expanded(child: Container(width: 1, color: line)),
                         ],
                       ),
                       const SizedBox(width: AppSpacing.md),

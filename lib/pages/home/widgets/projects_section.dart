@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/animations/animations.dart';
 import '../../../core/localization/app_strings.dart';
+import '../../../core/localization/tech_labels.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/case_study_modal.dart';
 import '../../../core/widgets/editorial_card.dart';
-import '../../../core/widgets/project_details_modal.dart';
 import '../../../core/widgets/ui_primitives.dart';
 import '../../../data/models/project.dart';
 
@@ -31,6 +30,7 @@ class ProjectsSection extends StatelessWidget {
           ...projects.asMap().entries.map((entry) {
             final i = entry.key;
             final p = entry.value;
+            // First project is featured
             final isFeatured = i == 0;
             return Padding(
               padding: EdgeInsets.only(
@@ -40,11 +40,7 @@ class ProjectsSection extends StatelessWidget {
                 delay: Duration(milliseconds: 100 * i),
                 child: isFeatured
                     ? _FeaturedProjectEntry(project: p)
-                    : _ProjectEntry(
-                        project: p,
-                        index: i,
-                        isReverse: i.isOdd,
-                      ),
+                    : _ProjectEntry(project: p, index: i, isReverse: i.isOdd),
               ),
             );
           }),
@@ -54,7 +50,6 @@ class ProjectsSection extends StatelessWidget {
   }
 }
 
-/// Featured project — full-width product spotlight using EditorialCard for consistency.
 class _FeaturedProjectEntry extends StatelessWidget {
   final Project project;
   const _FeaturedProjectEntry({required this.project});
@@ -66,16 +61,16 @@ class _FeaturedProjectEntry extends StatelessWidget {
       number: project.number,
       overrideBorder: AppColors.accent,
       onTap: () => CaseStudyModal.show(context, project),
-      semanticLabel: '${AppStrings.featuredLabel}: ${project.name}',
+      semanticLabel: '${AppStrings.featuredLabel}: ${project.name.value}',
       child: LayoutBuilder(
         builder: (context, c) {
           final stacked = c.maxWidth < 920;
           final media = _ProjectMedia(
             imageUrl: project.imageUrl,
-            name: project.name,
+            name: project.name.value,
             onTap: () => CaseStudyModal.show(context, project),
           );
-          final body = _ProjectBody(project: project, number: '01');
+          final body = _ProjectBody(project: project, number: project.number);
 
           if (stacked) {
             return Column(
@@ -122,20 +117,20 @@ class _ProjectEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final number = (index + 1).toString().padLeft(2, '0');
-    
+    final number = project.number;
+
     return EditorialCard(
       number: number,
-      onTap: () => _openDetails(context),
-      semanticLabel: '${AppStrings.projectLabel}: ${project.name}',
+      onTap: () => CaseStudyModal.show(context, project),
+      semanticLabel: '${AppStrings.projectLabel}: ${project.name.value}',
       child: LayoutBuilder(
         builder: (context, c) {
           final stacked = c.maxWidth < 920;
 
           final media = _ProjectMedia(
             imageUrl: project.imageUrl,
-            name: project.name,
-            onTap: () => _openDetails(context),
+            name: project.name.value,
+            onTap: () => CaseStudyModal.show(context, project),
           );
           final body = _ProjectBody(project: project, number: number);
 
@@ -151,8 +146,16 @@ class _ProjectEntry extends StatelessWidget {
           }
 
           final children = isReverse
-              ? [Expanded(child: body), const SizedBox(width: AppSpacing.xxl), Expanded(child: media)]
-              : [Expanded(child: media), const SizedBox(width: AppSpacing.xxl), Expanded(child: body)];
+              ? [
+                  Expanded(child: body),
+                  const SizedBox(width: AppSpacing.xxl),
+                  Expanded(child: media),
+                ]
+              : [
+                  Expanded(child: media),
+                  const SizedBox(width: AppSpacing.xxl),
+                  Expanded(child: body),
+                ];
 
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,33 +165,17 @@ class _ProjectEntry extends StatelessWidget {
       ),
     );
   }
-
-  void _openDetails(BuildContext context) {
-    if (project.id == 'aurix') {
-      CaseStudyModal.show(context, project);
-      return;
-    }
-    ProjectDetailsModal.show(
-      context: context,
-      title: project.name,
-      description: project.longDescription,
-      problem: project.problem,
-      solution: project.solution,
-      role: project.role,
-      technologies: project.technologies.split('·').map((e) => e.trim()).toList(),
-      features: project.keyFeatures.split('\n'),
-      githubUrl: project.githubUrl,
-      demoUrl: project.demoUrl,
-      imageUrl: project.imageUrl,
-    );
-  }
 }
 
 class _ProjectMedia extends StatefulWidget {
   final String imageUrl;
   final String name;
   final VoidCallback onTap;
-  const _ProjectMedia({required this.imageUrl, required this.name, required this.onTap});
+  const _ProjectMedia({
+    required this.imageUrl,
+    required this.name,
+    required this.onTap,
+  });
 
   @override
   State<_ProjectMedia> createState() => _ProjectMediaState();
@@ -200,7 +187,6 @@ class _ProjectMediaState extends State<_ProjectMedia> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final active = _hovered || _focused;
 
@@ -209,12 +195,14 @@ class _ProjectMediaState extends State<_ProjectMedia> {
       onShowHoverHighlight: (v) => setState(() => _hovered = v),
       mouseCursor: SystemMouseCursors.click,
       actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap()),
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) => widget.onTap(),
+        ),
       },
       child: GestureDetector(
         onTap: widget.onTap,
         child: AspectRatio(
-          aspectRatio: 4 / 3,
+          aspectRatio: 16 / 10,
           child: AnimatedContainer(
             duration: AppMotion.base,
             decoration: BoxDecoration(
@@ -239,50 +227,17 @@ class _ProjectMediaState extends State<_ProjectMedia> {
                       child: Image.asset(
                         widget.imageUrl,
                         fit: BoxFit.cover,
-                        cacheWidth: 1200,
-                        errorBuilder: (context, error, stack) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppColors.accent.withValues(alpha: 0.12),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'PROJECT.IMAGE',
-                              style: t.labelAccent.copyWith(letterSpacing: 2.4),
-                            ),
-                          );
-                        },
+                        errorBuilder: (context, error, stack) => Container(
+                          color: AppColors.accentDim,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            color: AppColors.accent,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Corner brackets
-                Positioned(
-                  top: AppSpacing.md,
-                  left: AppSpacing.md,
-                  child: _CornerBracket(isTopLeft: true, hovered: active),
-                ),
-                Positioned(
-                  top: AppSpacing.md,
-                  right: AppSpacing.md,
-                  child: _CornerBracket(isTopLeft: false, hovered: active),
-                ),
-                Positioned(
-                  bottom: AppSpacing.md,
-                  left: AppSpacing.md,
-                  child: _CornerBracket(isTopLeft: true, hovered: active, rotate: 3),
-                ),
-                Positioned(
-                  bottom: AppSpacing.md,
-                  right: AppSpacing.md,
-                  child: _CornerBracket(isTopLeft: false, hovered: active, rotate: 3),
                 ),
               ],
             ),
@@ -291,67 +246,6 @@ class _ProjectMediaState extends State<_ProjectMedia> {
       ),
     );
   }
-}
-
-class _CornerBracket extends StatelessWidget {
-  final bool isTopLeft;
-  final bool hovered;
-  final int rotate;
-  const _CornerBracket({
-    required this.isTopLeft,
-    required this.hovered,
-    this.rotate = 0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 12,
-      height: 12,
-      child: CustomPaint(
-        painter: _BracketPainter(
-          color: hovered ? AppColors.accent : Colors.white.withValues(alpha: 0.7),
-          flipX: !isTopLeft,
-          flipY: rotate.isOdd,
-        ),
-      ),
-    );
-  }
-}
-
-class _BracketPainter extends CustomPainter {
-  final Color color;
-  final bool flipX;
-  final bool flipY;
-  _BracketPainter({
-    required this.color,
-    required this.flipX,
-    required this.flipY,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.square;
-    final w = size.width;
-    final h = size.height;
-    final l = flipX ? w : 0.0;
-    final t = flipY ? h : 0.0;
-    final path = Path()
-      ..moveTo(l, t + h / 2)
-      ..lineTo(l, t)
-      ..lineTo(l + (flipX ? -w : w) / 2, t);
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _BracketPainter oldDelegate) =>
-      oldDelegate.color != color ||
-      oldDelegate.flipX != flipX ||
-      oldDelegate.flipY != flipY;
 }
 
 class _ProjectBody extends StatelessWidget {
@@ -367,8 +261,6 @@ class _ProjectBody extends StatelessWidget {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    
-    final hasCaseStudy = project.id == 'aurix';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,70 +276,26 @@ class _ProjectBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text(project.name, style: t.display3.copyWith(fontSize: 36)),
+        Text(project.name.value, style: t.display3.copyWith(fontSize: 32)),
         const SizedBox(height: AppSpacing.md),
-        Text(project.description, style: t.bodyLg),
+        Text(project.description.value, style: t.bodyLg),
         const SizedBox(height: AppSpacing.lg),
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: technologies
-              .map<Widget>((tech) => TechChip(label: tech, dense: true))
+              .map<Widget>(
+                (tech) => TechChip(label: TechLabels.of(tech), dense: true),
+              )
               .toList(),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        if (project.role.isNotEmpty)
-          Text(
-            '${AppStrings.roleLabel}  →  ${project.role}',
-            style: t.monoBodySm,
-          ),
         const SizedBox(height: AppSpacing.xl),
-        Wrap(
-          spacing: AppSpacing.md,
-          runSpacing: AppSpacing.md,
-          children: [
-            if (hasCaseStudy)
-              AppButton(
-                label: AppStrings.viewCaseStudy,
-                onPressed: () => CaseStudyModal.show(context, project),
-                showArrow: true,
-              ),
-            AppButton(
-              label: hasCaseStudy ? AppStrings.githubLabel : AppStrings.viewProject,
-              kind: hasCaseStudy ? ButtonKind.secondary : ButtonKind.ghost,
-              showArrow: !hasCaseStudy,
-              onPressed: () => _handleOpen(context),
-            ),
-          ],
+        AppButton(
+          label: AppStrings.viewCaseStudy,
+          onPressed: () => CaseStudyModal.show(context, project),
+          showArrow: true,
         ),
       ],
     );
-  }
-
-  void _handleOpen(BuildContext context) {
-    if (project.id == 'aurix' && project.githubUrl != null) {
-      _launch(project.githubUrl!);
-      return;
-    }
-    ProjectDetailsModal.show(
-      context: context,
-      title: project.name,
-      description: project.longDescription,
-      problem: project.problem,
-      solution: project.solution,
-      role: project.role,
-      technologies: project.technologies.split('·').map((e) => e.trim()).toList(),
-      features: project.keyFeatures.split('\n'),
-      githubUrl: project.githubUrl,
-      demoUrl: project.demoUrl,
-      imageUrl: project.imageUrl,
-    );
-  }
-
-  Future<void> _launch(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
   }
 }

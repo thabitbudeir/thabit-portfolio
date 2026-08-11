@@ -6,6 +6,7 @@ import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/ui_primitives.dart';
+import '../../../core/utils/cv_utils.dart';
 
 class AboutSection extends StatelessWidget {
   const AboutSection({super.key});
@@ -61,30 +62,27 @@ class AboutSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Text(AppStrings.aboutP3, style: t.bodyLg),
         const SizedBox(height: AppSpacing.xl),
-        
-        // Step 5: Resume Experience
+
+        // Resume Experience
         Wrap(
           spacing: AppSpacing.md,
           runSpacing: AppSpacing.md,
           children: [
             AppButton(
-              label: AppStrings.viewResume,
+              label: AppStrings.viewCv,
               kind: ButtonKind.secondary,
-              onPressed: () {
-                // Placeholder for resume view
-              },
+              leadingIcon: Icons.description_outlined,
+              onPressed: () => CVUtils.viewCV(),
             ),
             AppButton(
-              label: AppStrings.downloadPdf,
+              label: AppStrings.downloadCv,
               kind: ButtonKind.ghost,
               leadingIcon: Icons.download_rounded,
-              onPressed: () {
-                // Placeholder for resume download
-              },
+              onPressed: () => CVUtils.downloadCV(),
             ),
           ],
         ),
-        
+
         const SizedBox(height: AppSpacing.xl),
         Container(
           padding: const EdgeInsets.only(top: AppSpacing.lg),
@@ -127,31 +125,39 @@ class AboutSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                AppStrings.profileLabel,
-                style: t.labelAccent,
-              ),
+              Text(AppStrings.profileLabel, style: t.labelAccent),
               const SizedBox(width: AppSpacing.sm),
-              Text(
-                AppStrings.layersLabel,
-                style: t.label,
-              ),
+              Text(AppStrings.layersLabel, style: t.label),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 200,
             child: RepaintBoundary(
-              child: CustomPaint(
-                painter: _AboutPainter(isDark: isDark),
-              ),
+              child: CustomPaint(painter: _AboutPainter(isDark: isDark)),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          _statRow(context, AppStrings.statEngineer, 'CS · AI'),
-          _statRow(context, AppStrings.statBuilder, 'Flutter · Web'),
-          _statRow(context, AppStrings.statDesigner, 'UI · UX'),
-          _statRow(context, AppStrings.statLanguages, 'EN · AR · DE'),
+          _statRow(
+            context,
+            AppStrings.statEngineer,
+            AppStrings.aboutStatValueCsAi,
+          ),
+          _statRow(
+            context,
+            AppStrings.statBuilder,
+            AppStrings.aboutStatValueFlutter,
+          ),
+          _statRow(
+            context,
+            AppStrings.statDesigner,
+            AppStrings.aboutStatValueUiUx,
+          ),
+          _statRow(
+            context,
+            AppStrings.statLanguages,
+            AppStrings.aboutStatValueLangs,
+          ),
         ],
       ),
     );
@@ -222,13 +228,26 @@ class _AboutPainter extends CustomPainter {
       Offset(size.width - 8, size.height - 8),
     ];
     for (final n in nodes) {
-      canvas.drawCircle(n, 3, Paint()..color = AppColors.accent..style = PaintingStyle.fill);
+      canvas.drawCircle(
+        n,
+        3,
+        Paint()
+          ..color = AppColors.accent
+          ..style = PaintingStyle.fill,
+      );
     }
 
-    final diag = Paint()..color = AppColors.accent.withValues(alpha: 0.3)..strokeWidth = 1;
-    canvas.drawLine(Offset(0, size.height * 0.3), Offset(size.width, size.height * 0.7), diag);
+    final diag = Paint()
+      ..color = AppColors.accent.withValues(alpha: 0.3)
+      ..strokeWidth = 1;
+    canvas.drawLine(
+      Offset(0, size.height * 0.3),
+      Offset(size.width, size.height * 0.7),
+      diag,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _AboutPainter oldDelegate) => oldDelegate.isDark != isDark;
+  bool shouldRepaint(covariant _AboutPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }

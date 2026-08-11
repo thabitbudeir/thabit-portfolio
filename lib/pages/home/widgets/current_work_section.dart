@@ -14,7 +14,7 @@ class CurrentWorkSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final projects = [
       _CurrentProject(
-        name: 'AURIX',
+        name: AppStrings.currentNameAurix,
         subtitle: AppStrings.get(
           'Smart Tender Management System',
           'نظام ذكي لإدارة المناقصات',
@@ -23,9 +23,21 @@ class CurrentWorkSection extends StatelessWidget {
         progress: 0.75,
         status: AppStrings.statusInDev,
         focus: [
-          AppStrings.get('AI Document Verification', 'التحقق من المستندات بالذكاء الاصطناعي', 'KI-Dokumentenprüfung'),
-          AppStrings.get('Decision Engine', 'محرك اتخاذ القرار', 'Entscheidungs-Engine'),
-          AppStrings.get('Dashboard Polish', 'تحسين لوحة التحكم', 'Dashboard-Optimierung'),
+          AppStrings.get(
+            'AI Document Verification',
+            'التحقق من المستندات بالذكاء الاصطناعي',
+            'KI-Dokumentenprüfung',
+          ),
+          AppStrings.get(
+            'Decision Engine',
+            'محرك اتخاذ القرار',
+            'Entscheidungs-Engine',
+          ),
+          AppStrings.get(
+            'Dashboard Polish',
+            'تحسين لوحة التحكم',
+            'Dashboard-Optimierung',
+          ),
         ],
         stage: 2,
       ),
@@ -44,22 +56,22 @@ class CurrentWorkSection extends StatelessWidget {
           LayoutBuilder(
             builder: (context, c) {
               final isDesktop = c.maxWidth > 800;
-              return isDesktop 
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(flex: 4, child: _CurrentlySummary()),
-                      const SizedBox(width: AppSpacing.xl),
-                      Expanded(flex: 6, child: _buildProjects(projects)),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      _CurrentlySummary(),
-                      const SizedBox(height: AppSpacing.xl),
-                      _buildProjects(projects),
-                    ],
-                  );
+              return isDesktop
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 4, child: _CurrentlySummary()),
+                        const SizedBox(width: AppSpacing.xl),
+                        Expanded(flex: 6, child: _buildProjects(projects)),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        _CurrentlySummary(),
+                        const SizedBox(height: AppSpacing.xl),
+                        _buildProjects(projects),
+                      ],
+                    );
             },
           ),
         ],
@@ -89,19 +101,35 @@ class _CurrentlySummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return EditorialCard(
       number: 'CURRENTLY',
-      tag: 'STATUS',
+      tag: AppStrings.currentChipStatus,
       onTap: () {}, // Make card interactive
       semanticLabel: 'Current Professional Status',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildItem(context, AppStrings.buildingLabel, 'AURIX (v1.0)'),
+          _buildItem(
+            context,
+            AppStrings.buildingLabel,
+            AppStrings.currentBuildingValue,
+          ),
           const SizedBox(height: AppSpacing.md),
-          _buildItem(context, AppStrings.learningLabel, 'Advanced Flutter Architecture'),
+          _buildItem(
+            context,
+            AppStrings.learningLabel,
+            AppStrings.currentLearningValue,
+          ),
           const SizedBox(height: AppSpacing.md),
-          _buildItem(context, AppStrings.exploringLabel, 'AI × Mobile Systems'),
+          _buildItem(
+            context,
+            AppStrings.exploringLabel,
+            AppStrings.currentExploringValue,
+          ),
           const SizedBox(height: AppSpacing.md),
-          _buildItem(context, AppStrings.availableForLabel, 'Flutter / Mobile Opportunities'),
+          _buildItem(
+            context,
+            AppStrings.availableForLabel,
+            AppStrings.currentAvailableValue,
+          ),
         ],
       ),
     );
@@ -114,14 +142,24 @@ class _CurrentlySummary extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle)),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+              ),
+            ),
             const SizedBox(width: AppSpacing.sm),
             Text(label, style: t.labelAccent.copyWith(fontSize: 10)),
           ],
         ),
         const SizedBox(height: 4),
         Padding(
-          padding: const EdgeInsets.only(left: 14),
+          padding: EdgeInsets.only(
+            left: AppStrings.isRTL ? 0 : 14,
+            right: AppStrings.isRTL ? 14 : 0,
+          ),
           child: Text(value, style: t.monoBody.copyWith(fontSize: 13)),
         ),
       ],
@@ -214,10 +252,7 @@ class _CurrentWorkCard extends StatelessWidget {
           children: [
             Text(
               '${(project.progress * 100).round()}',
-              style: t.display2.copyWith(
-                color: AppColors.accent,
-                fontSize: 40,
-              ),
+              style: t.display2.copyWith(color: AppColors.accent, fontSize: 40),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 6, left: 4),
@@ -236,7 +271,10 @@ class _CurrentWorkCard extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         _ProgressBar(value: project.progress),
         const SizedBox(height: AppSpacing.lg),
-        Text(AppStrings.currentFocus.toUpperCase(), style: t.label.copyWith(fontSize: 9)),
+        Text(
+          AppStrings.currentFocus.toUpperCase(),
+          style: t.label.copyWith(fontSize: 9),
+        ),
         const SizedBox(height: AppSpacing.sm),
         ...project.focus.map(
           (item) => Padding(
@@ -252,7 +290,9 @@ class _CurrentWorkCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text(item, style: t.monoBody.copyWith(fontSize: 10))),
+                Expanded(
+                  child: Text(item, style: t.monoBody.copyWith(fontSize: 10)),
+                ),
               ],
             ),
           ),
@@ -281,15 +321,11 @@ class _CurrentWorkCard extends StatelessWidget {
                   width: isCurrent ? 10 : 6,
                   height: isCurrent ? 10 : 6,
                   decoration: BoxDecoration(
-                    color: active
-                        ? AppColors.accent
-                        : Colors.transparent,
+                    color: active ? AppColors.accent : Colors.transparent,
                     border: Border.all(
                       color: active
                           ? AppColors.accent
-                          : (isDark
-                              ? AppColors.darkLine
-                              : AppColors.lightLine),
+                          : (isDark ? AppColors.darkLine : AppColors.lightLine),
                       width: 1,
                     ),
                     shape: BoxShape.circle,
@@ -300,7 +336,11 @@ class _CurrentWorkCard extends StatelessWidget {
                   child: Text(
                     entry.value.toUpperCase(),
                     style: t.monoBody.copyWith(
-                      color: active ? null : (isDark ? AppColors.darkInkMute : AppColors.lightInkMute),
+                      color: active
+                          ? null
+                          : (isDark
+                                ? AppColors.darkInkMute
+                                : AppColors.lightInkMute),
                       letterSpacing: 1.2,
                       fontSize: 10,
                       fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
@@ -308,7 +348,10 @@ class _CurrentWorkCard extends StatelessWidget {
                   ),
                 ),
                 if (isCurrent)
-                  Text(AppStrings.nowLabel, style: t.labelAccent.copyWith(fontSize: 8)),
+                  Text(
+                    AppStrings.nowLabel,
+                    style: t.labelAccent.copyWith(fontSize: 8),
+                  ),
               ],
             ),
           );

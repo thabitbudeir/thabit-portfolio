@@ -19,9 +19,11 @@ void main() {
     await tester.pumpWidget(const PortfolioApp(initialIsDark: true));
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('THABIT BUDEIR'), findsWidgets);
+    // The hero eyebrow contains the name + the highlighted headline line.
+    expect(find.textContaining('Thabit Budeir'), findsWidgets);
+    expect(find.textContaining('Flutter', findRichText: true), findsWidgets);
     expect(
-      find.textContaining('Flutter Web', findRichText: true),
+      find.textContaining('I turn ideas into', findRichText: true),
       findsOneWidget,
     );
     await tester.pumpWidget(const SizedBox.shrink());

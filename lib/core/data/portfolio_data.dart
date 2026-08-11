@@ -207,8 +207,10 @@ class PortfolioData {
   ];
   static const List<String> backendSkills = [
     'Laravel',
+    'MySQL',
     'PostgreSQL',
     'Firebase',
+    'REST APIs',
   ];
   static const List<String> aiSkills = [
     'Artificial Intelligence',

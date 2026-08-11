@@ -1,7 +1,9 @@
+import '../../core/localization/localized_string.dart';
+
 class Certificate {
   final String id;
-  final String title;
-  final String organization;
+  final LocalizedString title;
+  final LocalizedString organization;
   final String date;
   final String imageUrl;
 
@@ -17,39 +19,48 @@ class Certificate {
 class CertificateData {
   static List<Certificate> get certificates => [
     Certificate(
-      id: 'flutter',
-      title: 'Flutter Development',
-      organization: 'Google',
+      id: 'uiux-unrwa',
+      title: const LocalizedString(en: 'UI/UX Design', ar: 'تصميم UI/UX'),
+      organization: const LocalizedString(en: 'UNRWA', ar: 'الأونروا'),
       date: '2023',
-      imageUrl: 'assets/certificates/flutter.jpg',
+      imageUrl: 'assets/certificates/ui_ux_unrwa.jpeg',
     ),
     Certificate(
-      id: 'uiux',
-      title: 'UI/UX Design Fundamentals',
-      organization: 'Google',
+      id: 'claude-101',
+      title: const LocalizedString(en: 'Claude 101', ar: 'Claude 101'),
+      organization: const LocalizedString(en: 'Anthropic', ar: 'Anthropic'),
+      date: '2024',
+      imageUrl: 'assets/certificates/claude101.jpeg',
+    ),
+    Certificate(
+      id: 'claude-code',
+      title: const LocalizedString(
+        en: 'Claude Code in Action',
+        ar: 'Claude Code في العمل',
+      ),
+      organization: const LocalizedString(en: 'Anthropic', ar: 'Anthropic'),
+      date: '2024',
+      imageUrl: 'assets/certificates/claude_code_in_action.jpeg',
+    ),
+    Certificate(
+      id: 'programming-advices',
+      title: const LocalizedString(
+        en: 'Software Engineering Roadmap',
+        ar: 'خارطة طريق هندسة البرمجيات',
+      ),
+      organization: const LocalizedString(
+        en: 'Programming Advices',
+        ar: 'Programming Advices',
+      ),
       date: '2023',
-      imageUrl: 'assets/certificates/uiux.jpg',
-    ),
-    Certificate(
-      id: 'claude101',
-      title: 'Claude 101',
-      organization: 'Anthropic',
-      date: '2024',
-      imageUrl: 'assets/certificates/claude101.jpg',
-    ),
-    Certificate(
-      id: 'claudeCode',
-      title: 'Claude Code in Action',
-      organization: 'Anthropic',
-      date: '2024',
-      imageUrl: 'assets/certificates/claudeCode.jpg',
+      imageUrl: 'assets/certificates/ProgrammingAdvices.png',
     ),
     Certificate(
       id: 'icdl',
-      title: 'ICDL Certification',
-      organization: 'ICDL',
+      title: const LocalizedString(en: 'ICDL Certification', ar: 'شهادة ICDL'),
+      organization: const LocalizedString(en: 'ICDL', ar: 'ICDL'),
       date: '2022',
-      imageUrl: 'assets/certificates/icdl.jpg',
+      imageUrl: 'assets/certificates/ICDL.png',
     ),
   ];
 }

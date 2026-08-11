@@ -29,5 +29,10 @@ flutter:
     - assets/projects/
     - assets/certificates/
     - assets/designs/
+    - assets/designs/AURIX/
+    - assets/designs/NABDH/
+    - assets/designs/Fodoora/
+    - "assets/designs/Dashboard UI/"
     - assets/profile/
     - assets/signature/
+    - assets/Thabit_Budeir_CV.pdf

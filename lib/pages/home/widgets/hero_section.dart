@@ -7,6 +7,7 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/ai_aura.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/ui_primitives.dart';
+import '../../../core/utils/cv_utils.dart';
 
 /// Hero — personal brand introduction, not a resume header.
 class HeroSection extends StatelessWidget {
@@ -166,9 +167,16 @@ class _Actions extends StatelessWidget {
           showArrow: true,
         ),
         AppButton(
-          label: AppStrings.contactMe,
+          label: AppStrings.viewCv,
           kind: ButtonKind.secondary,
-          onPressed: onContact,
+          leadingIcon: Icons.description_outlined,
+          onPressed: () => CVUtils.viewCV(),
+        ),
+        AppButton(
+          label: AppStrings.downloadCv,
+          kind: ButtonKind.ghost,
+          leadingIcon: Icons.download_rounded,
+          onPressed: () => CVUtils.downloadCV(),
         ),
       ],
     );

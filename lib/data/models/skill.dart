@@ -1,3 +1,5 @@
+import '../../core/localization/app_strings.dart';
+
 class SkillCategory {
   final String id;
   final String number;
@@ -19,31 +21,37 @@ class SkillData {
     SkillCategory(
       id: 'mobile',
       number: '01',
-      name: 'MOBILE DEVELOPMENT',
-      skills: ['Flutter', 'Dart', 'GetX', 'REST APIs'],
+      name: AppStrings.skillMobile,
+      skills: ['Flutter', 'Dart', 'GetX', 'REST APIs', 'Dio'],
     ),
     SkillCategory(
       id: 'backend',
       number: '02',
-      name: 'BACKEND',
-      skills: ['Laravel', 'PostgreSQL', 'Firebase'],
+      name: AppStrings.skillBackend,
+      skills: ['Laravel', 'REST APIs', 'Firebase'],
+    ),
+    SkillCategory(
+      id: 'databases',
+      number: '03',
+      name: AppStrings.skillDatabases,
+      skills: ['MySQL', 'PostgreSQL'],
     ),
     SkillCategory(
       id: 'ai',
-      number: '03',
-      name: 'ARTIFICIAL INTELLIGENCE',
+      number: '04',
+      name: AppStrings.skillAI,
       skills: ['AI', 'OCR', 'RAG', 'Decision Systems'],
     ),
     SkillCategory(
       id: 'design',
-      number: '04',
-      name: 'DESIGN',
+      number: '05',
+      name: AppStrings.skillDesign,
       skills: ['UI/UX', 'Figma', 'Design Systems'],
     ),
     SkillCategory(
       id: 'tools',
-      number: '05',
-      name: 'TOOLS',
+      number: '06',
+      name: AppStrings.skillTools,
       skills: ['Git', 'GitHub', 'VS Code'],
     ),
   ];

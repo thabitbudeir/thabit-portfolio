@@ -1,9 +1,11 @@
+import '../../core/localization/localized_string.dart';
+
 class ExperienceItem {
   final String id;
-  final String title;
-  final String organization;
+  final LocalizedString title;
+  final LocalizedString organization;
   final String period;
-  final String? description;
+  final LocalizedString? description;
 
   ExperienceItem({
     required this.id,
@@ -16,10 +18,10 @@ class ExperienceItem {
 
 class EducationItem {
   final String id;
-  final String degree;
-  final String institution;
+  final LocalizedString degree;
+  final LocalizedString institution;
   final String period;
-  final String? specialization;
+  final LocalizedString? specialization;
 
   EducationItem({
     required this.id,
@@ -31,17 +33,24 @@ class EducationItem {
 }
 
 class ExperienceData {
-  static List<ExperienceItem> get experience => [
-    // Add real experience when available
-  ];
+  static List<ExperienceItem> get experience => [];
 
   static List<EducationItem> get education => [
     EducationItem(
       id: 'bachelor',
-      degree: 'Bachelor in Informatics Engineering',
-      institution: 'Al-Sham Private University',
+      degree: const LocalizedString(
+        en: 'Bachelor in Informatics Engineering',
+        ar: 'بكالوريوس هندسة معلوماتية',
+      ),
+      institution: const LocalizedString(
+        en: 'Al-Sham Private University',
+        ar: 'جامعة الشام الخاصة',
+      ),
       period: '2021 — Present',
-      specialization: 'Artificial Intelligence',
+      specialization: const LocalizedString(
+        en: 'Artificial Intelligence',
+        ar: 'تخصص الذكاء الاصطناعي',
+      ),
     ),
   ];
 }
