@@ -11,7 +11,7 @@ class CVUtils {
     const basePath = '/thabit-portfolio/';
 
     return '${uri.origin}$basePath'
-        'assets/Thabit_Budeir_CV.pdf';
+        'assets/assets/Thabit_Budeir_CV.pdf';
   }
 
   static Future<void> viewCV() async {
