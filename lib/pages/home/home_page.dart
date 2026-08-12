@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    
+
     final offset = _scrollController.offset;
     _scrollOffset.value = offset;
 
@@ -91,8 +91,10 @@ class _HomePageState extends State<HomePage> {
 
     const navHeight = AppLayout.navHeight;
     final position = box.localToGlobal(Offset.zero);
-    final targetOffset = (_scrollOffset.value + position.dy - navHeight)
-        .clamp(0.0, _scrollController.position.maxScrollExtent);
+    final targetOffset = (_scrollOffset.value + position.dy - navHeight).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
 
     _scrollController.animateTo(
       targetOffset,
@@ -104,7 +106,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -117,25 +119,49 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
                   const SizedBox(height: AppLayout.navHeight),
-                  _SectionWrapper(key: _sectionKeys[0], child: HeroSection(
-                    onViewProjects: () => _scrollToSection(4),
-                    onContact: () => _scrollToSection(9),
-                  )),
+                  _SectionWrapper(
+                    key: _sectionKeys[0],
+                    child: HeroSection(
+                      onViewProjects: () => _scrollToSection(4),
+                      onContact: () => _scrollToSection(9),
+                    ),
+                  ),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[1], child: const WhatIDoSection()),
-                  _SectionWrapper(key: _sectionKeys[2], child: const AboutSection()),
+                    _SectionWrapper(
+                      key: _sectionKeys[1],
+                      child: WhatIDoSection(),
+                    ),
+                  _SectionWrapper(key: _sectionKeys[2], child: AboutSection()),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[3], child: const CurrentWorkSection()),
-                  _SectionWrapper(key: _sectionKeys[4], child: const ProjectsSection()),
-                  _SectionWrapper(key: _sectionKeys[5], child: const SkillsSection()),
+                    _SectionWrapper(
+                      key: _sectionKeys[3],
+                      child: CurrentWorkSection(),
+                    ),
+                  _SectionWrapper(
+                    key: _sectionKeys[4],
+                    child: ProjectsSection(),
+                  ),
+                  _SectionWrapper(key: _sectionKeys[5], child: SkillsSection()),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[6], child: const DesignsSection()),
+                    _SectionWrapper(
+                      key: _sectionKeys[6],
+                      child: DesignsSection(),
+                    ),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[7], child: const CertificatesSection()),
-                  _SectionWrapper(key: _sectionKeys[8], child: const ExperienceSection()),
+                    _SectionWrapper(
+                      key: _sectionKeys[7],
+                      child: CertificatesSection(),
+                    ),
+                  _SectionWrapper(
+                    key: _sectionKeys[8],
+                    child: ExperienceSection(),
+                  ),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[10], child: const LabSection()),
-                  _SectionWrapper(key: _sectionKeys[9], child: const ContactSection()),
+                    _SectionWrapper(key: _sectionKeys[10], child: LabSection()),
+                  _SectionWrapper(
+                    key: _sectionKeys[9],
+                    child: ContactSection(),
+                  ),
                   _Footer(isDark: isDark),
                 ],
               ),
@@ -158,7 +184,8 @@ class _HomePageState extends State<HomePage> {
                   },
                   onThemeChanged: widget.onThemeChanged,
                   recruiterMode: _recruiterMode,
-                  onRecruiterModeChanged: (v) => setState(() => _recruiterMode = v),
+                  onRecruiterModeChanged: (v) =>
+                      setState(() => _recruiterMode = v),
                 );
               },
             ),
@@ -175,9 +202,7 @@ class _SectionWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: child,
-    );
+    return RepaintBoundary(child: child);
   }
 }
 

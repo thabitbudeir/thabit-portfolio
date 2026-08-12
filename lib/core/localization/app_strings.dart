@@ -54,20 +54,20 @@ class AppStrings {
   static String get heroName =>
       get('Thabit Budeir', 'ثابت بدير', 'Thabit Budeir');
   static String get heroLine1 =>
-      get('I turn ideas into', 'أحوّل الأفكار إلى', 'Ich verwandle Ideen in');
+      get('I design, build,', 'أصمّم، أبني،', 'Ich entwerfe, baue');
   static String get heroLine2Prefix =>
-      get('real, working ', 'منتجات حقيقية ', 'echte, funktionierende ');
+      get('and ship ', 'وأنشر ', 'und veröffentliche ');
   static String get heroLine2Accent =>
-      get('products.', 'قابلة للاستخدام.', 'Produkte.');
+      get('digital products.', 'منتجات رقمية.', 'digitale Produkte.');
   static String get heroTitle => get(
-    'I build mobile applications, intelligent systems, and digital experiences with a focus on solving real-world problems.',
-    'أبني تطبيقات الهاتف والأنظمة الذكية والتجارب الرقمية مع التركيز على حل المشكلات الحقيقية وتحويل الأفكار إلى حلول عملية.',
-    'Ich entwickle mobile Anwendungen, intelligente Systeme und digitale Erlebnisse mit Fokus auf reale Probleme.',
+    'Flutter developer & AI engineering student — building mobile apps, intelligent systems, and interfaces designed to be useful, not just impressive.',
+    'مطوّر Flutter وطالب هندسة ذكاء اصطناعي — أبني تطبيقات الجوال والأنظمة الذكية والواجهات المصمَّمة لتكون مفيدة، لا مبهرة فقط.',
+    'Flutter-Entwickler & KI-Informatikstudent — ich baue Mobile-Apps, intelligente Systeme und Interfaces, die nützlich sind, nicht nur beeindruckend.',
   );
   static String get heroSub => get(
-    'Flutter Web portfolio focused on technical depth, intelligent systems, and premium user experience.',
-    'ملف أعمال Flutter Web يركّز على العمق التقني والأنظمة الذكية وتجربة استخدام احترافية.',
-    'Flutter-Web-Portfolio mit Fokus auf technischer Tiefe, intelligenten Systemen und hochwertiger UX.',
+    'A Flutter Web portfolio of selected projects, intelligent systems, and design work.',
+    'بورتفوليو Flutter Web يعرض مشاريع مختارة وأنظمة ذكية وأعمال تصميم.',
+    'Ein Flutter-Web-Portfolio mit ausgewählten Projekten, intelligenten Systemen und Designarbeiten.',
   );
   static String get viewProjects =>
       get('View Projects', 'استعرض المشاريع', 'PROJEKTE ANSEHEN');
@@ -167,7 +167,7 @@ class AppStrings {
   static String get aboutHeadline => get(
     'Engineer, builder, and design-minded problem solver.',
     'مهندس ومطوّر يهتم بالحلول والتصميم معاً.',
-    'Ingenieur, Builder und designorientierter Problemlöسر.',
+    'Ingenieur, Builder und designorientierter Problemlöser.',
   );
   static String get aboutP1 => get(
     'I’m Thabit Budeir, an Informatics Engineering student specializing in Artificial Intelligence and a Flutter Developer focused on building practical, scalable, and user-centered digital solutions.',
@@ -321,7 +321,7 @@ class AppStrings {
   static String get skillsSub => get(
     'The tools I work with daily, and how I put them together.',
     'الأدوات التي أعمل بها يومياً، وكيف أجمعها معاً.',
-    'Die Werkzeuge, mit denen ich täglich arbeite, und wie ich sie verbindه.',
+    'Die Werkzeuge, mit denen ich täglich arbeite, und wie ich sie verbinde.',
   );
 
   // Designs

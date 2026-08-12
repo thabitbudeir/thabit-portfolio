@@ -6,13 +6,18 @@ import 'core/localization/app_strings.dart';
 import 'pages/home/home_page.dart';
 
 Future<void> main() async {
-  // Pre-initialize for immediate startup performance
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final isDark = prefs.getBool('isDark') ?? true;
-  
-  // Set initial language if saved (optional improvement)
-  // AppStrings.setLanguage(...);
+
+  // Restore the last UI language.
+  final langName = prefs.getString('lang') ?? AppStrings.currentLanguage.name;
+  AppStrings.setLanguage(
+    AppLanguage.values.firstWhere(
+      (l) => l.name == langName,
+      orElse: () => AppStrings.currentLanguage,
+    ),
+  );
 
   runApp(PortfolioApp(initialIsDark: isDark));
 }
@@ -33,16 +38,19 @@ class _PortfolioAppState extends State<PortfolioApp> {
     super.initState();
     _isDark = widget.initialIsDark;
   }
+
   Future<void> _updateTheme(bool isDark) async {
     setState(() => _isDark = isDark);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDark', isDark);
   }
 
-  void _updateLanguage(AppLanguage lang) {
+  Future<void> _updateLanguage(AppLanguage lang) async {
     setState(() {
       AppStrings.setLanguage(lang);
     });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lang', lang.name);
   }
 
   @override
@@ -64,7 +72,6 @@ class _PortfolioAppState extends State<PortfolioApp> {
           ),
         );
       },
-      // Optimization: Removed the ValueKey that was causing full page destruction
       home: HomePage(
         onLanguageChanged: _updateLanguage,
         onThemeChanged: _updateTheme,

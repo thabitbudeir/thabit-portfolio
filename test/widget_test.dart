@@ -22,10 +22,7 @@ void main() {
     // The hero eyebrow contains the name + the highlighted headline line.
     expect(find.textContaining('Thabit Budeir'), findsWidgets);
     expect(find.textContaining('Flutter', findRichText: true), findsWidgets);
-    expect(
-      find.textContaining('I turn ideas into', findRichText: true),
-      findsOneWidget,
-    );
+    expect(find.textContaining('and ship', findRichText: true), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
