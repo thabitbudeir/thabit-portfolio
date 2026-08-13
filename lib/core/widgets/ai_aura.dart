@@ -62,8 +62,7 @@ class _AIAuraState extends State<AIAura> with SingleTickerProviderStateMixin {
       child: RepaintBoundary(
         child: CustomPaint(
           size: Size(widget.size, widget.size),
-          // Pass the controller as repaint to the painter
-          painter: _AIPainter(repaint: _controller),
+          painter: _AIPainter(repaint: _controller, color: context.accent),
         ),
       ),
     );
@@ -72,8 +71,9 @@ class _AIAuraState extends State<AIAura> with SingleTickerProviderStateMixin {
 
 class _AIPainter extends CustomPainter {
   final Animation<double> _animation;
+  final Color color;
 
-  _AIPainter({required Animation<double> repaint})
+  _AIPainter({required Animation<double> repaint, required this.color})
     : _animation = repaint,
       super(repaint: repaint);
 
@@ -91,12 +91,11 @@ class _AIPainter extends CustomPainter {
       final p = (progress + (i * 0.5)) % 1.0;
       final opacity = (1.0 - p).clamp(0.0, 0.2);
 
-      paint.color = AppColors.accent.withValues(alpha: opacity);
+      paint.color = color.withValues(alpha: opacity);
 
       final currentRadius = radius * p;
       final path = Path();
 
-      // Points reduction: j += 15 for even less calculations per frame
       for (int j = 0; j <= 360; j += 15) {
         final radians = j * math.pi / 180;
         final noise = math.sin(radians * 3 + progress * 5) * 4;

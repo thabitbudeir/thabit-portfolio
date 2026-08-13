@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Spacing scale — based on a 4pt baseline grid.
-/// Names are semantic, not numerical, so the system can evolve.
+
 class AppSpacing {
   static const double micro = 2;
   static const double xs = 4;
@@ -15,8 +14,7 @@ class AppSpacing {
   static const double massive = 160;
 }
 
-/// Border radius — tight, almost-square by default.
-/// Distinct from the standard "rounded everything" portfolio look.
+
 class AppRadius {
   static const double none = 0;
   static const double xs = 2;
@@ -26,8 +24,7 @@ class AppRadius {
   static const double pill = 999;
 }
 
-/// Motion tokens — shorter, more deliberate than the previous system.
-/// Animation is used as a *punctuation mark*, not a wallpaper.
+
 class AppMotion {
   static const Duration instant = Duration(milliseconds: 80);
   static const Duration fast = Duration(milliseconds: 160);
@@ -41,7 +38,7 @@ class AppMotion {
   static const Curve accelerate = Cubic(0.4, 0.0, 1.0, 1.0);
 }
 
-/// Breakpoints — same philosophy, slightly wider desktop.
+
 class AppBreakpoints {
   static const double mobile = 640;
   static const double tablet = 960;

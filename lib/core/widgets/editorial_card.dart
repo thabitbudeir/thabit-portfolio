@@ -3,12 +3,7 @@ import '../theme/app_colors.dart';
 import '../theme/design_system.dart';
 import '../theme/typography.dart';
 
-/// EditorialCard — a deliberate replacement for the standard "rounded + shadow" card.
-///
-/// Design rules:
-/// - Sharp corners by default (radius 4). The "tech-document" feel.
-/// - Hover state is a single accent hairline that "draws" around the card.
-/// - Keyboard focus support added for accessibility.
+
 class EditorialCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -44,12 +39,11 @@ class _EditorialCardState extends State<EditorialCard> {
     final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
-    final accent = AppColors.accent;
+    final accent = context.accent;
 
-    final borderColor = widget.overrideBorder ??
-        ((_hovered || _focused)
-            ? accent.withValues(alpha: 0.8)
-            : line);
+    final borderColor =
+        widget.overrideBorder ??
+        ((_hovered || _focused) ? accent.withValues(alpha: 0.8) : line);
 
     final interactive = widget.onTap != null;
 
@@ -58,10 +52,7 @@ class _EditorialCardState extends State<EditorialCard> {
       curve: AppMotion.standard,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border.all(
-          color: borderColor, 
-          width: _focused ? 2 : 1,
-        ),
+        border: Border.all(color: borderColor, width: _focused ? 2 : 1),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Stack(
@@ -127,16 +118,12 @@ class _EditorialCardState extends State<EditorialCard> {
             onInvoke: (_) => widget.onTap?.call(),
           ),
         },
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: content,
-        ),
+        child: GestureDetector(onTap: widget.onTap, child: content),
       ),
     );
   }
 }
 
-/// AsymmetricPanel — for the hero, project spotlights, and other "statement" surfaces.
 class AsymmetricPanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -157,8 +144,8 @@ class AsymmetricPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
-    final bg = background ??
-        (isDark ? AppColors.darkSurface : AppColors.lightSurface);
+    final bg =
+        background ?? (isDark ? AppColors.darkSurface : AppColors.lightSurface);
 
     return Container(
       decoration: BoxDecoration(
@@ -198,7 +185,6 @@ class AsymmetricPanel extends StatelessWidget {
   }
 }
 
-/// TechChip — the "this is a tag" voice. All-caps, mono, with optional accent dot.
 class TechChip extends StatefulWidget {
   final String label;
   final bool accent;
@@ -256,10 +242,7 @@ class _TechChipState extends State<TechChip> {
             Container(
               width: 5,
               height: 5,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: AppSpacing.sm),
             Text(

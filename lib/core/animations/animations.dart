@@ -3,13 +3,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../theme/design_system.dart';
 import '../utils/motion_policy.dart';
 
-/// RevealOnScroll — single-shot, GPU-friendly reveal.
-///
-/// Performance contract:
-/// - Listens to a single [VisibilityDetector] per instance.
-/// - Animates a 0→1 progress value once, then disposes the listener.
-/// - Uses transform (translateY) + opacity only — no layout effects.
-/// - Respects reduced-motion preferences.
+
 class RevealOnScroll extends StatefulWidget {
   final Widget child;
   final Duration delay;
@@ -33,6 +27,7 @@ class RevealOnScroll extends StatefulWidget {
 class _RevealOnScrollState extends State<RevealOnScroll>
     with SingleTickerProviderStateMixin {
   AnimationController? _controller;
+  Animation<double>? _animation;
   bool _started = false;
   bool _disposed = false;
 
@@ -46,6 +41,10 @@ class _RevealOnScrollState extends State<RevealOnScroll>
       duration: animate ? widget.duration : Duration.zero,
       value: animate ? 0 : 1,
     );
+    _animation = CurvedAnimation(
+      parent: _controller!,
+      curve: AppMotion.decelerate,
+    );
   }
 
   @override
@@ -58,8 +57,12 @@ class _RevealOnScrollState extends State<RevealOnScroll>
   void _start() {
     if (_started || _disposed || _controller == null) return;
     _started = true;
-    if (!MotionPolicy.shouldAnimate(context) || widget.delay == Duration.zero) {
+    if (!MotionPolicy.shouldAnimate(context)) {
       _controller!.value = 1;
+      return;
+    }
+    if (widget.delay == Duration.zero) {
+      _controller!.forward();
       return;
     }
     Future.delayed(widget.delay, () {
@@ -87,9 +90,9 @@ class _RevealOnScrollState extends State<RevealOnScroll>
         if (info.visibleFraction > 0.08) _start();
       },
       child: AnimatedBuilder(
-        animation: controller,
+        animation: _animation!,
         builder: (context, child) {
-          final v = controller.value;
+          final v = _animation!.value;
           return Opacity(
             opacity: v,
             child: Transform.translate(
@@ -104,7 +107,7 @@ class _RevealOnScrollState extends State<RevealOnScroll>
   }
 }
 
-/// Staggered reveal — incremental delays for list children.
+
 class StaggeredReveal extends StatelessWidget {
   final List<Widget> children;
   final Duration stagger;
@@ -129,6 +132,127 @@ class StaggeredReveal extends StatelessWidget {
           child: children[i],
         );
       }),
+    );
+  }
+}
+
+
+class HeroEntrance extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  final double translateY;
+  final double scaleFrom;
+  final Duration duration;
+
+  const HeroEntrance({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+    this.translateY = 28,
+    this.scaleFrom = 0.98,
+    this.duration = const Duration(milliseconds: 700),
+  });
+
+  @override
+  State<HeroEntrance> createState() => _HeroEntranceState();
+}
+
+class _HeroEntranceState extends State<HeroEntrance>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _controller;
+  Animation<double>? _progress;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialization based on InheritedWidgets (MediaQuery / MotionPolicy)
+    // must happen here, not in initState.
+    if (_controller != null) return;
+    final animate = MotionPolicy.shouldAnimate(context);
+    _controller = AnimationController(
+      vsync: this,
+      duration: animate ? widget.duration : Duration.zero,
+    );
+    _progress = CurvedAnimation(
+      parent: _controller!,
+      curve: AppMotion.decelerate,
+    );
+    if (!animate) {
+      _controller!.value = 1;
+    } else if (widget.delay == Duration.zero) {
+      _controller!.forward();
+    } else {
+      Future.delayed(widget.delay, () {
+        if (mounted) _controller!.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+    final progress = _progress;
+    if (controller == null || progress == null) return widget.child;
+    return AnimatedBuilder(
+      animation: progress,
+      child: widget.child,
+      builder: (context, child) {
+        final v = progress.value;
+        return Opacity(
+          opacity: v,
+          child: Transform.translate(
+            offset: Offset(0, widget.translateY * (1 - v)),
+            child: Transform.scale(
+              scale: 1 + (widget.scaleFrom - 1) * (1 - v),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+class SmoothLift extends StatefulWidget {
+  final Widget child;
+  final double lift;
+  final bool enabled;
+
+  const SmoothLift({
+    super.key,
+    required this.child,
+    this.lift = 3,
+    this.enabled = true,
+  });
+
+  @override
+  State<SmoothLift> createState() => _SmoothLiftState();
+}
+
+class _SmoothLiftState extends State<SmoothLift> {
+  double _offset = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _offset = -widget.lift),
+      onExit: (_) => setState(() => _offset = 0),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: _offset),
+        duration: AppMotion.base,
+        curve: AppMotion.standard,
+        builder: (context, value, child) =>
+            Transform.translate(offset: Offset(0, value), child: child),
+        child: widget.child,
+      ),
     );
   }
 }

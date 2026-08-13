@@ -227,6 +227,7 @@ class _ProjectMediaState extends State<_ProjectMedia> {
                       child: Image.asset(
                         widget.imageUrl,
                         fit: BoxFit.cover,
+                        cacheWidth: 1200,
                         errorBuilder: (context, error, stack) => Container(
                           color: AppColors.accentDim,
                           alignment: Alignment.center,

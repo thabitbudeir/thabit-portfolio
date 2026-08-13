@@ -5,11 +5,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/design_system.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/ai_aura.dart';
+import '../../../core/widgets/brand_monogram.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/ui_primitives.dart';
 import '../../../core/utils/cv_utils.dart';
 
-/// Hero — personal brand introduction, not a resume header.
 class HeroSection extends StatelessWidget {
   final VoidCallback onViewProjects;
   final VoidCallback onContact;
@@ -36,9 +36,7 @@ class HeroSection extends StatelessWidget {
             const Positioned(
               top: 100,
               right: -50,
-              child: IgnorePointer(
-                child: AIAura(size: 400),
-              ),
+              child: IgnorePointer(child: AIAura(size: 400)),
             ),
             const Positioned.fill(
               child: IgnorePointer(
@@ -51,34 +49,39 @@ class HeroSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RevealOnScroll(
+                  // Entrance animation — staged fade/slide/scale sequence
+                  HeroEntrance(
                     delay: const Duration(milliseconds: 60),
                     child: _EyebrowRow(t: t),
                   ),
                   SizedBox(height: isDesktop ? AppSpacing.xxxl : AppSpacing.xl),
-                  RevealOnScroll(
+                  HeroEntrance(
                     delay: const Duration(milliseconds: 120),
+                    translateY: 36,
                     child: _Headline(t: t, isDesktop: isDesktop),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  RevealOnScroll(
-                    delay: const Duration(milliseconds: 220),
+                  HeroEntrance(
+                    delay: const Duration(milliseconds: 240),
+                    translateY: 24,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 560),
                       child: Text(AppStrings.heroTitle, style: t.bodyLg),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
-                  RevealOnScroll(
-                    delay: const Duration(milliseconds: 320),
+                  HeroEntrance(
+                    delay: const Duration(milliseconds: 360),
+                    translateY: 20,
                     child: _Actions(
                       onViewProjects: onViewProjects,
                       onContact: onContact,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
-                  RevealOnScroll(
-                    delay: const Duration(milliseconds: 420),
+                  HeroEntrance(
+                    delay: const Duration(milliseconds: 480),
+                    translateY: 16,
                     child: _BottomMetaRow(t: t),
                   ),
                 ],
@@ -99,6 +102,8 @@ class _EyebrowRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        BrandMonogram.mark(height: 20),
+        const SizedBox(width: AppSpacing.md),
         Text('00', style: t.labelAccent),
         const SizedBox(width: AppSpacing.md),
         Container(width: 24, height: 1, color: AppColors.accent),

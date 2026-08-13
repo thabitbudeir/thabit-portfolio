@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/design_system.dart';
 import '../../core/theme/typography.dart';
 import '../../core/widgets/background_system.dart';
+import '../../core/widgets/brand_monogram.dart';
 import '../../core/widgets/navigation.dart';
 import 'widgets/about_section.dart';
 import 'widgets/certificates_section.dart';
@@ -12,6 +13,7 @@ import 'widgets/current_work_section.dart';
 import 'widgets/designs_section.dart';
 import 'widgets/experience_section.dart';
 import 'widgets/hero_section.dart';
+import 'widgets/identity_section.dart';
 import 'widgets/projects_section.dart';
 import 'widgets/skills_section.dart';
 import 'widgets/what_i_do_section.dart';
@@ -33,8 +35,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
-  final List<GlobalKey> _sectionKeys = List.generate(11, (_) => GlobalKey());
-  final ValueNotifier<double> _scrollOffset = ValueNotifier(0);
+  final List<GlobalKey> _sectionKeys = List.generate(12, (_) => GlobalKey());
+  final ValueNotifier<bool> _navElevated = ValueNotifier(false);
+  double _scrollOffset = 0;
   int _activeSectionIndex = 0;
   DateTime _lastScrollCall = DateTime.now();
   bool _recruiterMode = false;
@@ -49,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-    _scrollOffset.dispose();
+    _navElevated.dispose();
     super.dispose();
   }
 
@@ -57,7 +60,11 @@ class _HomePageState extends State<HomePage> {
     if (!_scrollController.hasClients) return;
 
     final offset = _scrollController.offset;
-    _scrollOffset.value = offset;
+    _scrollOffset = offset;
+    final elevated = offset > 8;
+    if (_navElevated.value != elevated) {
+      _navElevated.value = elevated;
+    }
 
     final now = DateTime.now();
     if (now.difference(_lastScrollCall).inMilliseconds < 100) return;
@@ -91,7 +98,7 @@ class _HomePageState extends State<HomePage> {
 
     const navHeight = AppLayout.navHeight;
     final position = box.localToGlobal(Offset.zero);
-    final targetOffset = (_scrollOffset.value + position.dy - navHeight).clamp(
+    final targetOffset = (_scrollOffset + position.dy - navHeight).clamp(
       0.0,
       _scrollController.position.maxScrollExtent,
     );
@@ -156,8 +163,12 @@ class _HomePageState extends State<HomePage> {
                     key: _sectionKeys[8],
                     child: ExperienceSection(),
                   ),
+                  _SectionWrapper(
+                    key: _sectionKeys[10],
+                    child: IdentitySection(),
+                  ),
                   if (!_recruiterMode)
-                    _SectionWrapper(key: _sectionKeys[10], child: LabSection()),
+                    _SectionWrapper(key: _sectionKeys[11], child: LabSection()),
                   _SectionWrapper(
                     key: _sectionKeys[9],
                     child: ContactSection(),
@@ -171,23 +182,17 @@ class _HomePageState extends State<HomePage> {
             top: 0,
             left: 0,
             right: 0,
-            child: ValueListenableBuilder<double>(
-              valueListenable: _scrollOffset,
-              builder: (context, offset, _) {
-                return AppNavigation(
-                  activeSectionIndex: _activeSectionIndex,
-                  scrollOffset: offset,
-                  onSectionTapped: _scrollToSection,
-                  onLanguageChanged: (lang) {
-                    widget.onLanguageChanged(lang);
-                    setState(() {});
-                  },
-                  onThemeChanged: widget.onThemeChanged,
-                  recruiterMode: _recruiterMode,
-                  onRecruiterModeChanged: (v) =>
-                      setState(() => _recruiterMode = v),
-                );
+            child: AppNavigation(
+              activeSectionIndex: _activeSectionIndex,
+              navElevated: _navElevated,
+              onSectionTapped: _scrollToSection,
+              onLanguageChanged: (lang) {
+                widget.onLanguageChanged(lang);
+                setState(() {});
               },
+              onThemeChanged: widget.onThemeChanged,
+              recruiterMode: _recruiterMode,
+              onRecruiterModeChanged: (v) => setState(() => _recruiterMode = v),
             ),
           ),
         ],
@@ -230,6 +235,7 @@ class _Footer extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: AppLayout.maxWidth),
             child: Column(
               children: [
+                BrandMonogram.mark(height: 34),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
                   AppStrings.footerTagline,

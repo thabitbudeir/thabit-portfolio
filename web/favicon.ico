@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="geometricPrecision">
+  <rect width="64" height="64" rx="4" fill="#1A1D21"/>
+  <!-- TB Monogram — engineered serif construction matching the identity -->
+  <g stroke="#BFC3C9" stroke-width="3.2" fill="none" stroke-linecap="square">
+    <!-- T -->
+    <line x1="14" y1="18" x2="50" y2="18"/>
+    <line x1="32" y1="18" x2="32" y2="46"/>
+    <!-- B -->
+    <path d="M32 30 h9 a6 6 0 0 1 0 12 h-9"/>
+    <path d="M32 22 h8 a5 5 0 0 1 0 10 h-8"/>
+  </g>
+  <!-- Baseline accent -->
+  <line x1="14" y1="50" x2="44" y2="50" stroke="#BFC3C9" stroke-width="1.5" opacity="0.55"/>
+</svg>

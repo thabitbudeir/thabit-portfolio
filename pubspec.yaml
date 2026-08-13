@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   url_launcher: ^6.2.1
   shared_preferences: ^2.2.2
+  http: ^1.6.0
   visibility_detector: ^0.4.0+2
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.7
@@ -35,4 +36,5 @@ flutter:
     - "assets/designs/Dashboard UI/"
     - assets/profile/
     - assets/signature/
+    - assets/my_visual_identy/
     - assets/Thabit_Budeir_CV.pdf

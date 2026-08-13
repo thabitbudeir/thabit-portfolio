@@ -5,12 +5,19 @@ import 'core/theme/typography.dart';
 import 'core/localization/app_strings.dart';
 import 'pages/home/home_page.dart';
 
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final isDark = prefs.getBool('isDark') ?? true;
-
-  // Restore the last UI language.
   final langName = prefs.getString('lang') ?? AppStrings.currentLanguage.name;
   AppStrings.setLanguage(
     AppLanguage.values.firstWhere(
@@ -58,6 +65,7 @@ class _PortfolioAppState extends State<PortfolioApp> {
     return MaterialApp(
       title: 'Thabit Budeir | Portfolio',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const AppScrollBehavior(),
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,

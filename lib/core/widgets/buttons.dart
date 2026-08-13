@@ -36,11 +36,16 @@ class _AppButtonState extends State<AppButton> {
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final disabled = widget.onPressed == null;
 
     final ink = isDark ? AppColors.darkInk : AppColors.lightInk;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
+
+    final accent = scheme.primary;
+    final accentHover = scheme.secondary;
+    final onAccent = scheme.onPrimary;
 
     Color background;
     Color foreground;
@@ -48,25 +53,23 @@ class _AppButtonState extends State<AppButton> {
 
     switch (widget.kind) {
       case ButtonKind.primary:
-        background = (_hovered || _focused)
-            ? AppColors.accentDeep
-            : AppColors.accent;
-        foreground = const Color(0xFF0B0C0A);
+        background = (_hovered || _focused) ? accentHover : accent;
+        foreground = onAccent;
         borderColor = null;
         break;
       case ButtonKind.secondary:
         background = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-        foreground = (_hovered || _focused) ? AppColors.accent : ink;
-        borderColor = (_hovered || _focused) ? AppColors.accent : line;
+        foreground = (_hovered || _focused) ? accent : ink;
+        borderColor = (_hovered || _focused) ? accent : line;
         break;
       case ButtonKind.ghost:
         background = Colors.transparent;
-        foreground = (_hovered || _focused) ? AppColors.accent : ink;
-        borderColor = (_hovered || _focused) ? AppColors.accent : line;
+        foreground = (_hovered || _focused) ? accent : ink;
+        borderColor = (_hovered || _focused) ? accent : line;
         break;
       case ButtonKind.link:
         background = Colors.transparent;
-        foreground = (_hovered || _focused) ? AppColors.accent : ink;
+        foreground = (_hovered || _focused) ? accent : ink;
         borderColor = null;
         break;
     }
@@ -82,7 +85,9 @@ class _AppButtonState extends State<AppButton> {
       child: FocusableActionDetector(
         onShowFocusHighlight: (v) => setState(() => _focused = v),
         onShowHoverHighlight: (v) => setState(() => _hovered = v),
-        mouseCursor: disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
+        mouseCursor: disabled
+            ? SystemMouseCursors.forbidden
+            : SystemMouseCursors.click,
         actions: {
           ActivateIntent: CallbackAction<ActivateIntent>(
             onInvoke: (_) => widget.onPressed?.call(),
@@ -97,16 +102,13 @@ class _AppButtonState extends State<AppButton> {
             decoration: BoxDecoration(
               color: disabled ? background.withValues(alpha: 0.4) : background,
               border: borderColor != null
-                  ? Border.all(
-                      color: borderColor,
-                      width: _focused ? 2 : 1,
-                    )
+                  ? Border.all(color: borderColor, width: _focused ? 2 : 1)
                   : _focused
-                      ? Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.7),
-                          width: 2,
-                        )
-                      : null,
+                  ? Border.all(
+                      color: AppColors.accent.withValues(alpha: 0.7),
+                      width: 2,
+                    )
+                  : null,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             transform: Matrix4.translationValues(0, lift, 0),
@@ -119,14 +121,19 @@ class _AppButtonState extends State<AppButton> {
                 ],
                 Text(
                   widget.label,
-                  style: (widget.kind == ButtonKind.primary
-                          ? t.buttonOnAccent
-                          : t.button)
-                      .copyWith(color: foreground),
+                  style:
+                      (widget.kind == ButtonKind.primary
+                              ? t.buttonOnAccent
+                              : t.button)
+                          .copyWith(color: foreground),
                 ),
                 if (widget.showArrow) ...[
                   const SizedBox(width: AppSpacing.sm),
-                  Icon(Icons.arrow_forward_rounded, size: 14, color: foreground),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 14,
+                    color: foreground,
+                  ),
                 ],
               ],
             ),

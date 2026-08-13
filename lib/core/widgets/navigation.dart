@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../localization/app_strings.dart';
 import '../theme/app_colors.dart';
 import '../theme/design_system.dart';
 import '../theme/typography.dart';
 import 'binary_animation.dart';
+import 'brand_monogram.dart';
 import 'buttons.dart';
 
 class AppNavigation extends StatefulWidget {
@@ -11,7 +13,7 @@ class AppNavigation extends StatefulWidget {
   final Function(bool) onThemeChanged;
   final int activeSectionIndex;
   final Function(int) onSectionTapped;
-  final double scrollOffset;
+  final ValueListenable<bool> navElevated;
   final bool recruiterMode;
   final ValueChanged<bool> onRecruiterModeChanged;
 
@@ -21,7 +23,7 @@ class AppNavigation extends StatefulWidget {
     required this.onThemeChanged,
     required this.activeSectionIndex,
     required this.onSectionTapped,
-    required this.scrollOffset,
+    required this.navElevated,
     required this.recruiterMode,
     required this.onRecruiterModeChanged,
   });
@@ -31,21 +33,24 @@ class AppNavigation extends StatefulWidget {
 }
 
 class _AppNavigationState extends State<AppNavigation> {
-  bool get _elevated => widget.scrollOffset > 8;
+  bool get _elevated => widget.navElevated.value;
+
+  static List<(int, String)> _navLinks() => [
+    (0, AppStrings.navHome),
+    (1, AppStrings.navWhatIDo),
+    (2, AppStrings.navAbout),
+    (3, AppStrings.navCurrent),
+    (4, AppStrings.navProjects),
+    (5, AppStrings.navSkills),
+    (6, AppStrings.navDesigns),
+    (7, AppStrings.navCertificates),
+    (8, AppStrings.navExperience),
+    (10, AppStrings.navIdentity),
+    (9, AppStrings.navContact),
+  ];
 
   void _showMobileMenu() {
-    final links = [
-      AppStrings.navHome,
-      AppStrings.navWhatIDo,
-      AppStrings.navAbout,
-      AppStrings.navCurrent,
-      AppStrings.navProjects,
-      AppStrings.navSkills,
-      AppStrings.navDesigns,
-      AppStrings.navCertificates,
-      AppStrings.navExperience,
-      AppStrings.navContact,
-    ];
+    final links = _navLinks();
 
     showGeneralDialog(
       context: context,
@@ -69,11 +74,14 @@ class _AppNavigationState extends State<AppNavigation> {
         );
       },
       transitionBuilder: (context, anim1, anim2, child) {
-        final begin = AppStrings.isRTL ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
+        final begin = AppStrings.isRTL
+            ? const Offset(-1.0, 0.0)
+            : const Offset(1.0, 0.0);
         return SlideTransition(
-          position: Tween<Offset>(begin: begin, end: Offset.zero).animate(
-            CurvedAnimation(parent: anim1, curve: AppMotion.standard),
-          ),
+          position: Tween<Offset>(
+            begin: begin,
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim1, curve: AppMotion.standard)),
           child: child,
         );
       },
@@ -86,22 +94,11 @@ class _AppNavigationState extends State<AppNavigation> {
     final width = MediaQuery.sizeOf(context).width;
     final isMobile = width < AppBreakpoints.tablet;
 
-    final links = [
-      AppStrings.navHome,
-      AppStrings.navWhatIDo,
-      AppStrings.navAbout,
-      AppStrings.navCurrent,
-      AppStrings.navProjects,
-      AppStrings.navSkills,
-      AppStrings.navDesigns,
-      AppStrings.navCertificates,
-      AppStrings.navExperience,
-      AppStrings.navContact,
-    ];
+    final links = _navLinks();
 
-    final List<int> desktopIndices = widget.recruiterMode 
-        ? [0, 2, 4, 8, 9] 
-        : [0, 2, 4, 5, 9];
+    final List<int> desktopIndices = widget.recruiterMode
+        ? [0, 2, 4, 8, 9]
+        : [0, 2, 4, 5, 8, 10, 9];
 
     final bg = isDark ? AppColors.darkBackground : AppColors.lightBackground;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
@@ -109,101 +106,122 @@ class _AppNavigationState extends State<AppNavigation> {
     final hPad = width >= AppBreakpoints.desktop
         ? AppLayout.sectionPadDesktop
         : width >= AppBreakpoints.tablet
-            ? AppLayout.sectionPadTablet
-            : AppLayout.sectionPadMobile;
+        ? AppLayout.sectionPadTablet
+        : AppLayout.sectionPadMobile;
 
-    return AnimatedContainer(
-      duration: AppMotion.fast,
-      height: AppLayout.navHeight,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: _elevated ? bg.withValues(alpha: 0.96) : bg.withValues(alpha: 0.88),
-        border: Border(bottom: BorderSide(color: line, width: 1)),
-      ),
-      child: Stack(
-        children: [
-          const Positioned.fill(
-            child: BinaryBackground(height: AppLayout.navHeight),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: AppMotion.slow,
+      curve: AppMotion.decelerate,
+      builder: (context, v, child) {
+        return Opacity(
+          opacity: v,
+          child: Transform.translate(
+            offset: Offset(0, -14 * (1 - v)),
+            child: child,
           ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad),
-              child: Row(
-                children: [
-                  _BrandLockup(onTap: () => widget.onSectionTapped(0)),
-                  const SizedBox(width: AppSpacing.xl),
-                  if (!isMobile) ...[
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: desktopIndices.map((i) {
-                            return _NavItem(
-                              label: links[i],
-                              index: i,
-                              active: widget.activeSectionIndex == i,
-                              onTap: () => widget.onSectionTapped(i),
-                            );
-                          }).toList(),
+        );
+      },
+      child: AnimatedContainer(
+        duration: AppMotion.fast,
+        height: AppLayout.navHeight,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: _elevated
+              ? bg.withValues(alpha: 0.96)
+              : bg.withValues(alpha: 0.88),
+          border: Border(bottom: BorderSide(color: line, width: 1)),
+        ),
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: BinaryBackground(height: AppLayout.navHeight),
+            ),
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad),
+                child: Row(
+                  children: [
+                    _BrandLockup(onTap: () => widget.onSectionTapped(0)),
+                    const SizedBox(width: AppSpacing.xl),
+                    if (!isMobile) ...[
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: desktopIndices.map((index) {
+                              final (_, label) = links.firstWhere(
+                                (link) => link.$1 == index,
+                              );
+                              return _NavItem(
+                                label: label,
+                                index: index,
+                                active: widget.activeSectionIndex == index,
+                                onTap: () => widget.onSectionTapped(index),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.lg),
-                    _RecruiterToggle(
-                      active: widget.recruiterMode,
-                      onChanged: widget.onRecruiterModeChanged,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    _LangSwitcher(onLanguageChanged: widget.onLanguageChanged),
-                    const SizedBox(width: AppSpacing.sm),
-                    _ThemeSwitcher(onThemeChanged: widget.onThemeChanged),
-                    const SizedBox(width: AppSpacing.md),
-                    AppButton(
-                      label: AppStrings.contactMe,
-                      compact: true,
-                      showArrow: true,
-                      onPressed: () => widget.onSectionTapped(links.length - 1),
-                    ),
-                  ] else ...[
-                    const Spacer(),
-                    _RecruiterToggle(
-                      active: widget.recruiterMode,
-                      onChanged: widget.onRecruiterModeChanged,
-                      compact: true,
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Semantics(
-                      button: true,
-                      label: AppStrings.menuOpen,
-                      child: FocusableActionDetector(
-                        mouseCursor: SystemMouseCursors.click,
-                        actions: {
-                          ActivateIntent: CallbackAction<ActivateIntent>(
-                            onInvoke: (_) => _showMobileMenu(),
-                          ),
-                        },
-                        child: GestureDetector(
-                          onTap: _showMobileMenu,
-                          child: Container(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            child: Icon(
-                              Icons.menu_rounded,
-                              size: 22,
-                              color: isDark
-                                  ? AppColors.darkInk
-                                  : AppColors.lightInk,
+                      const SizedBox(width: AppSpacing.lg),
+                      _RecruiterToggle(
+                        active: widget.recruiterMode,
+                        onChanged: widget.onRecruiterModeChanged,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      _LangSwitcher(
+                        onLanguageChanged: widget.onLanguageChanged,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      _ThemeSwitcher(onThemeChanged: widget.onThemeChanged),
+                      const SizedBox(width: AppSpacing.md),
+                      AppButton(
+                        label: AppStrings.contactMe,
+                        compact: true,
+                        showArrow: true,
+                        onPressed: () => widget.onSectionTapped(9),
+                      ),
+                    ] else ...[
+                      const Spacer(),
+                      _RecruiterToggle(
+                        active: widget.recruiterMode,
+                        onChanged: widget.onRecruiterModeChanged,
+                        compact: true,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Semantics(
+                        button: true,
+                        label: AppStrings.menuOpen,
+                        child: FocusableActionDetector(
+                          mouseCursor: SystemMouseCursors.click,
+                          actions: {
+                            ActivateIntent: CallbackAction<ActivateIntent>(
+                              onInvoke: (_) => _showMobileMenu(),
+                            ),
+                          },
+                          child: GestureDetector(
+                            onTap: _showMobileMenu,
+                            child: Container(
+                              padding: const EdgeInsets.all(AppSpacing.sm),
+                              child: Icon(
+                                Icons.menu_rounded,
+                                size: 22,
+                                color: isDark
+                                    ? AppColors.darkInk
+                                    : AppColors.lightInk,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -215,7 +233,6 @@ class _BrandLockup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppText.of(context);
     return Semantics(
       button: true,
       label: AppStrings.goToHome,
@@ -228,7 +245,10 @@ class _BrandLockup extends StatelessWidget {
         },
         child: GestureDetector(
           onTap: onTap,
-          child: Text('TB', style: t.labelInk.copyWith(letterSpacing: 2.0)),
+          child: BrandMonogram.mark(
+            height: 26,
+            padding: const EdgeInsets.all(2),
+          ),
         ),
       ),
     );
@@ -261,10 +281,10 @@ class _NavItemState extends State<_NavItem> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final active = widget.active;
     final color = active
-        ? AppColors.accent
+        ? context.accent
         : _hovered || _focused
-            ? (isDark ? AppColors.darkInk : AppColors.lightInk)
-            : (isDark ? AppColors.darkInkSoft : AppColors.lightInkSoft);
+        ? (isDark ? AppColors.darkInk : AppColors.lightInk)
+        : (isDark ? AppColors.darkInkSoft : AppColors.lightInkSoft);
 
     return FocusableActionDetector(
       onShowFocusHighlight: (v) => setState(() => _focused = v),
@@ -293,7 +313,7 @@ class _NavItemState extends State<_NavItem> {
                     widget.index.toString().padLeft(2, '0'),
                     style: t.labelAccent.copyWith(
                       fontSize: 9,
-                      color: active ? AppColors.accent : AppColors.accentDim,
+                      color: active ? context.accent : context.accentDim,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -305,7 +325,7 @@ class _NavItemState extends State<_NavItem> {
                 duration: AppMotion.fast,
                 width: (active || _focused) ? 16 : (_hovered ? 8 : 0),
                 height: 1,
-                color: AppColors.accent,
+                color: context.accent,
               ),
             ],
           ),
@@ -319,29 +339,47 @@ class _RecruiterToggle extends StatelessWidget {
   final bool active;
   final ValueChanged<bool> onChanged;
   final bool compact;
-  const _RecruiterToggle({required this.active, required this.onChanged, this.compact = false});
+  const _RecruiterToggle({
+    required this.active,
+    required this.onChanged,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = active ? AppColors.accent : (isDark ? AppColors.darkInkSoft : AppColors.lightInkSoft);
+    final color = active
+        ? context.accent
+        : (isDark ? AppColors.darkInkSoft : AppColors.lightInkSoft);
 
     return Tooltip(
       message: AppStrings.recruiterHint,
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
         actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onChanged(!active)),
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => onChanged(!active),
+          ),
         },
         child: GestureDetector(
           onTap: () => onChanged(!active),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: 6,
+            ),
             decoration: BoxDecoration(
-              border: Border.all(color: active ? AppColors.accent : (isDark ? AppColors.darkLine : AppColors.lightLine), width: 1),
+              border: Border.all(
+                color: active
+                    ? context.accent
+                    : (isDark ? AppColors.darkLine : AppColors.lightLine),
+                width: 1,
+              ),
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              color: active ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent,
+              color: active
+                  ? context.accent.withValues(alpha: 0.1)
+                  : Colors.transparent,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -349,7 +387,10 @@ class _RecruiterToggle extends StatelessWidget {
                 Icon(Icons.work_outline_rounded, size: 14, color: color),
                 if (!compact) ...[
                   const SizedBox(width: AppSpacing.sm),
-                  Text(AppStrings.recruiterMode, style: t.label.copyWith(color: color, fontSize: 10)),
+                  Text(
+                    AppStrings.recruiterMode,
+                    style: t.label.copyWith(color: color, fontSize: 10),
+                  ),
                 ],
               ],
             ),
@@ -362,12 +403,7 @@ class _RecruiterToggle extends StatelessWidget {
 
 class _LangSwitcher extends StatefulWidget {
   final Function(AppLanguage) onLanguageChanged;
-  final bool compact;
-  const _LangSwitcher({
-    super.key,
-    required this.onLanguageChanged,
-    this.compact = false,
-  });
+  const _LangSwitcher({required this.onLanguageChanged});
 
   @override
   State<_LangSwitcher> createState() => _LangSwitcherState();
@@ -395,7 +431,8 @@ class _LangSwitcherState extends State<_LangSwitcher> {
           final focused = _focusedIndex == i;
 
           return FocusableActionDetector(
-            onShowFocusHighlight: (v) => setState(() => _focusedIndex = v ? i : -1),
+            onShowFocusHighlight: (v) =>
+                setState(() => _focusedIndex = v ? i : -1),
             mouseCursor: SystemMouseCursors.click,
             actions: {
               ActivateIntent: CallbackAction<ActivateIntent>(
@@ -406,23 +443,29 @@ class _LangSwitcherState extends State<_LangSwitcher> {
               onTap: () => widget.onLanguageChanged(lang),
               child: AnimatedContainer(
                 duration: AppMotion.fast,
-                padding: EdgeInsets.symmetric(
-                  horizontal: widget.compact ? 8 : 10,
-                  vertical: widget.compact ? 6 : 7,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.accent : (focused ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent),
+                  color: selected
+                      ? context.accent
+                      : (focused
+                            ? context.accent.withValues(alpha: 0.1)
+                            : Colors.transparent),
                   borderRadius: BorderRadius.circular(AppRadius.xs),
-                  border: focused ? Border.all(color: AppColors.accent, width: 1) : null,
+                  border: focused
+                      ? Border.all(color: context.accent, width: 1)
+                      : null,
                 ),
                 child: Text(
                   lang.name.toUpperCase(),
                   style: t.label.copyWith(
                     color: selected
-                        ? const Color(0xFF0B0C0A)
+                        ? context.onAccent
                         : (isDark
-                            ? AppColors.darkInkSoft
-                            : AppColors.lightInkSoft),
+                              ? AppColors.darkInkSoft
+                              : AppColors.lightInkSoft),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -464,9 +507,14 @@ class _ThemeSwitcherState extends State<_ThemeSwitcher> {
           duration: AppMotion.fast,
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
-            border: Border.all(color: _focused ? AppColors.accent : line, width: 1),
+            border: Border.all(
+              color: _focused ? context.accent : line,
+              width: 1,
+            ),
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            color: _focused ? AppColors.accent.withValues(alpha: 0.05) : Colors.transparent,
+            color: _focused
+                ? context.accent.withValues(alpha: 0.05)
+                : Colors.transparent,
           ),
           child: Icon(
             isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
@@ -480,7 +528,7 @@ class _ThemeSwitcherState extends State<_ThemeSwitcher> {
 }
 
 class _MobileMenu extends StatelessWidget {
-  final List<String> links;
+  final List<(int, String)> links;
   final int activeIndex;
   final bool recruiterMode;
   final Function(int) onLinkTap;
@@ -502,18 +550,15 @@ class _MobileMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppText.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final line = isDark ? AppColors.darkLine : AppColors.lightLine;
-    
+
     return Material(
       color: Colors.transparent,
       child: Stack(
         children: [
           // Close area (background)
-          Positioned.fill(
-            child: GestureDetector(onTap: onClose),
-          ),
+          Positioned.fill(child: GestureDetector(onTap: onClose)),
           Align(
             alignment: AppStrings.isRTL
                 ? Alignment.centerLeft
@@ -524,10 +569,16 @@ class _MobileMenu extends StatelessWidget {
                 width: 300,
                 height: double.infinity,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface,
                   border: Border(
-                    left: AppStrings.isRTL ? BorderSide.none : BorderSide(color: line, width: 1),
-                    right: AppStrings.isRTL ? BorderSide(color: line, width: 1) : BorderSide.none,
+                    left: AppStrings.isRTL
+                        ? BorderSide.none
+                        : BorderSide(color: line, width: 1),
+                    right: AppStrings.isRTL
+                        ? BorderSide(color: line, width: 1)
+                        : BorderSide.none,
                   ),
                 ),
                 child: SafeArea(
@@ -536,12 +587,21 @@ class _MobileMenu extends StatelessWidget {
                     children: [
                       const SizedBox(height: AppSpacing.md),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                        ),
                         child: Row(
                           children: [
-                            Text('TB', style: t.heading2.copyWith(letterSpacing: 2.0)),
+                            BrandMonogram.mark(
+                              height: 26,
+                              padding: const EdgeInsets.all(2),
+                            ),
                             const Spacer(),
-                            _RecruiterToggle(active: recruiterMode, onChanged: onRecruiterModeChanged, compact: true),
+                            _RecruiterToggle(
+                              active: recruiterMode,
+                              onChanged: onRecruiterModeChanged,
+                              compact: true,
+                            ),
                             const SizedBox(width: AppSpacing.sm),
                             IconButton(
                               onPressed: onClose,
@@ -557,12 +617,13 @@ class _MobileMenu extends StatelessWidget {
                         child: ListView.builder(
                           itemCount: links.length,
                           itemBuilder: (context, i) {
-                            final active = activeIndex == i;
+                            final (sectionIndex, label) = links[i];
+                            final active = activeIndex == sectionIndex;
                             return _MobileMenuItem(
-                              label: links[i],
-                              index: i,
+                              label: label,
+                              index: sectionIndex,
                               active: active,
-                              onTap: () => onLinkTap(i),
+                              onTap: () => onLinkTap(sectionIndex),
                             );
                           },
                         ),
@@ -636,22 +697,22 @@ class _MobileMenuItemState extends State<_MobileMenuItem> {
             border: Border(
               left: BorderSide(
                 color: (active || _focused)
-                    ? AppColors.accent
+                    ? context.accent
                     : Colors.transparent,
                 width: 2,
               ),
-              bottom: _focused ? BorderSide(color: AppColors.accent.withValues(alpha: 0.1)) : BorderSide.none,
+              bottom: _focused
+                  ? BorderSide(color: context.accent.withValues(alpha: 0.1))
+                  : BorderSide.none,
             ),
-            color: _focused ? AppColors.accent.withValues(alpha: 0.05) : null,
+            color: _focused ? context.accent.withValues(alpha: 0.05) : null,
           ),
           child: Row(
             children: [
               Text(
                 widget.index.toString().padLeft(2, '0'),
                 style: t.labelAccent.copyWith(
-                  color: active
-                      ? AppColors.accent
-                      : AppColors.accentDim,
+                  color: active ? context.accent : context.accentDim,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -659,10 +720,8 @@ class _MobileMenuItemState extends State<_MobileMenuItem> {
                 widget.label,
                 style: t.heading3.copyWith(
                   color: active
-                      ? AppColors.accent
-                      : (isDark
-                          ? AppColors.darkInk
-                          : AppColors.lightInk),
+                      ? context.accent
+                      : (isDark ? AppColors.darkInk : AppColors.lightInk),
                 ),
               ),
             ],

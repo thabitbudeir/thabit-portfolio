@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../utils/motion_policy.dart';
 
-/// SignatureMark — A purely geometric, "Tech Logo" style monogram for "th".
-/// 
-/// Optimized for performance: 
-/// - Paint-driven animation (no AnimatedBuilder rebuilds).
-/// - Respects reduced motion.
+
 class SignatureMark extends StatefulWidget {
   final double height;
   final Color? tint;
@@ -105,16 +101,16 @@ class _GeometricTHPainter extends CustomPainter {
       canvas.drawLine(p1, Offset(p1.dx + (p2.dx - p1.dx) * segmentP, p1.dy + (p2.dy - p1.dy) * segmentP), paint);
     }
 
-    // Geometric 't'
+
     drawLine(Offset(w * 0.2, h * 0.1), Offset(w * 0.2, h * 0.8), 0.0, 0.4); 
     drawLine(Offset(w * 0.05, h * 0.35), Offset(w * 0.35, h * 0.35), 0.2, 0.5); 
 
-    // Geometric 'h'
+
     drawLine(Offset(w * 0.5, h * 0.1), Offset(w * 0.5, h * 0.8), 0.3, 0.7); 
     drawLine(Offset(w * 0.5, h * 0.45), Offset(w * 0.8, h * 0.45), 0.6, 0.8); 
     drawLine(Offset(w * 0.8, h * 0.45), Offset(w * 0.8, h * 0.8), 0.8, 1.0); 
 
-    // Technical Underline
+
     if (progress > 0.8) {
       final linePaint = Paint()
         ..color = color.withOpacity(0.5)

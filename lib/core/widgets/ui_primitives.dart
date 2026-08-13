@@ -3,8 +3,7 @@ import '../theme/app_colors.dart';
 import '../theme/design_system.dart';
 import '../theme/typography.dart';
 
-/// SectionShell — outer padding + max-width clamp for any section.
-/// Used by every section. Single source of truth for vertical rhythm.
+
 class SectionShell extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -45,10 +44,7 @@ class SectionShell extends StatelessWidget {
   }
 }
 
-/// Section header — editorial mono style.
-/// Replaces the "01 — SECTION NAME" cliché with something more distinctive:
-/// a tiny mono label on top, then the heading, then a 1px hairline that
-/// uses the accent as a leading edge before fading.
+
 class SectionHeader extends StatelessWidget {
   final String label;
   final String title;
@@ -126,7 +122,6 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// HairlineDivider — a single 1px line, semantic name, no Material Divider.
 class Hairline extends StatelessWidget {
   final bool vertical;
   final double? indent;

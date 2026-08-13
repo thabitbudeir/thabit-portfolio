@@ -14,8 +14,18 @@ class WhatIDoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final domains = [
-      _Domain('01', AppStrings.domainInformatics, AppStrings.domainInformaticsDesc, 0),
-      _Domain('02', AppStrings.domainSoftware, AppStrings.domainSoftwareDesc, 1),
+      _Domain(
+        '01',
+        AppStrings.domainInformatics,
+        AppStrings.domainInformaticsDesc,
+        0,
+      ),
+      _Domain(
+        '02',
+        AppStrings.domainSoftware,
+        AppStrings.domainSoftwareDesc,
+        1,
+      ),
       _Domain('03', AppStrings.domainAI, AppStrings.domainAIDesc, 2),
       _Domain('04', AppStrings.domainDesign, AppStrings.domainDesignDesc, 3),
     ];
@@ -26,7 +36,11 @@ class WhatIDoSection extends StatelessWidget {
         children: [
           SectionHeader(
             label: AppStrings.sectionWhatIDo,
-            title: AppStrings.get('What I do.', 'ماذا أقدّم.', 'Was ich mache.'),
+            title: AppStrings.get(
+              'What I do.',
+              'ماذا أقدّم.',
+              'Was ich mache.',
+            ),
             subtitle: AppStrings.whatIDoHeadline,
           ),
           const SizedBox(height: AppSpacing.xxl),
@@ -35,8 +49,8 @@ class WhatIDoSection extends StatelessWidget {
               final columns = c.maxWidth >= 1100
                   ? 4
                   : c.maxWidth >= 760
-                      ? 2
-                      : 1;
+                  ? 2
+                  : 1;
               return Wrap(
                 spacing: AppSpacing.lg,
                 runSpacing: AppSpacing.lg,
@@ -92,30 +106,34 @@ class _DomainCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppText.of(context);
-    return EditorialCard(
-      number: number,
-      onTap: () {}, // Make card interactive
-      semanticLabel: title,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 96,
-            child: RepaintBoundary(
-              child: CustomPaint(
-                painter: _DomainPatternPainter(
-                  type: pattern,
-                  isDark: Theme.of(context).brightness == Brightness.dark,
+    return SmoothLift(
+      lift: 4,
+      child: EditorialCard(
+        number: number,
+        onTap: () {}, // Make card interactive
+        semanticLabel: title,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 96,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _DomainPatternPainter(
+                    type: pattern,
+                    isDark: Theme.of(context).brightness == Brightness.dark,
+                    accent: context.accent,
+                  ),
+                  size: const Size(double.infinity, 96),
                 ),
-                size: const Size(double.infinity, 96),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text(title, style: t.heading2),
-          const SizedBox(height: AppSpacing.sm),
-          Text(body, style: t.body),
-        ],
+            const SizedBox(height: AppSpacing.lg),
+            Text(title, style: t.heading2),
+            const SizedBox(height: AppSpacing.sm),
+            Text(body, style: t.body),
+          ],
+        ),
       ),
     );
   }
@@ -124,12 +142,17 @@ class _DomainCard extends StatelessWidget {
 class _DomainPatternPainter extends CustomPainter {
   final int type;
   final bool isDark;
-  _DomainPatternPainter({required this.type, required this.isDark});
+  final Color accent;
+  _DomainPatternPainter({
+    required this.type,
+    required this.isDark,
+    required this.accent,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.accent
+      ..color = accent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
@@ -149,10 +172,9 @@ class _DomainPatternPainter extends CustomPainter {
         // Wave — product signal
         final path = Path();
         for (double x = 0; x <= size.width; x += 4) {
-          final y = size.height / 2 +
-              ((x.toInt() % 2 == 0)
-                      ? (x / size.width)
-                      : (1 - x / size.width)) *
+          final y =
+              size.height / 2 +
+              ((x.toInt() % 2 == 0) ? (x / size.width) : (1 - x / size.width)) *
                   size.height *
                   0.3;
           if (x == 0) {
@@ -170,21 +192,34 @@ class _DomainPatternPainter extends CustomPainter {
         final r = 28.0;
         for (int i = 0; i < 6; i++) {
           final a = (i / 6) * math.pi * 2;
-          final p = Offset(cx + r * 1.5 * math.cos(a), cy + r * 1.2 * math.sin(a));
+          final p = Offset(
+            cx + r * 1.5 * math.cos(a),
+            cy + r * 1.2 * math.sin(a),
+          );
           canvas.drawCircle(p, 2.5, paint..style = PaintingStyle.fill);
-          canvas.drawLine(Offset(cx, cy), p, paint..style = PaintingStyle.stroke);
+          canvas.drawLine(
+            Offset(cx, cy),
+            p,
+            paint..style = PaintingStyle.stroke,
+          );
         }
         canvas.drawCircle(Offset(cx, cy), 4, paint..style = PaintingStyle.fill);
         break;
       case 3:
         // Design grid
         for (double x = 0; x < size.width; x += 24) {
-          canvas.drawLine(Offset(x, 0), Offset(x, size.height),
-              paint..strokeWidth = 0.5);
+          canvas.drawLine(
+            Offset(x, 0),
+            Offset(x, size.height),
+            paint..strokeWidth = 0.5,
+          );
         }
         for (double y = 0; y < size.height; y += 24) {
-          canvas.drawLine(Offset(0, y), Offset(size.width, y),
-              paint..strokeWidth = 0.5);
+          canvas.drawLine(
+            Offset(0, y),
+            Offset(size.width, y),
+            paint..strokeWidth = 0.5,
+          );
         }
         canvas.drawRect(
           Rect.fromLTWH(size.width * 0.6, size.height * 0.25, 36, 36),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-/// Central motion policy — respects [MediaQuery.disableAnimations] and
-/// platform reduced-motion preferences.
+
 class MotionPolicy {
   MotionPolicy._();
 
