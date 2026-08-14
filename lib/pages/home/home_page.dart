@@ -18,6 +18,7 @@ import 'widgets/projects_section.dart';
 import 'widgets/skills_section.dart';
 import 'widgets/what_i_do_section.dart';
 import 'widgets/lab_section.dart';
+import 'widgets/logo_strip.dart';
 
 class HomePage extends StatefulWidget {
   final Function(AppLanguage) onLanguageChanged;
@@ -133,6 +134,7 @@ class _HomePageState extends State<HomePage> {
                       onContact: () => _scrollToSection(9),
                     ),
                   ),
+                  const LogoStrip(),
                   if (!_recruiterMode)
                     _SectionWrapper(
                       key: _sectionKeys[1],

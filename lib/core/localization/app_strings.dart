@@ -377,6 +377,12 @@ class AppStrings {
       get('Image not available', 'الصورة غير متوفرة', 'Bild nicht verfügbar');
   static String get exploreMore =>
       get('Explore More', 'استكشاف المزيد', 'Mehr entdecken');
+  
+  static String get visitGallery => get(
+    'Visit gallery to see the full case study and interfaces',
+    'زيارة معرض الاعمال للاطلاع على اليوز كيس والواجهات كاملتا',
+    'Besuchen Sie die Galerie, um die vollständige Fallstudie und die Schnittstellen zu sehen',
+  );
 
 
   static String get contactHeadline => get(
@@ -501,7 +507,7 @@ class AppStrings {
   static String get aboutStatValueCsAi =>
       get('CS · AI', 'علوم حاسوب · ذكاء اصطناعي', 'CS · KI');
   static String get aboutStatValueFlutter =>
-      get('Flutter · Web', 'Flutter · ويب', 'Flutter · Web');
+      get('Flutter · ويب', 'Flutter · ويب', 'Flutter · Web');
   static String get aboutStatValueUiUx =>
       get('UI · UX', 'واجهات · تجربة', 'UI · UX');
   static String get aboutStatValueLangs =>

@@ -206,6 +206,8 @@ class _DesignTileState extends State<_DesignTile> {
       context: context,
       imageUrl: widget.design.imageUrl,
       title: widget.design.title.value,
+      actionUrl: widget.design.behanceUrl,
+      actionLabel: AppStrings.visitGallery,
     );
   }
 }

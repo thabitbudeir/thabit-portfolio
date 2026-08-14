@@ -6,6 +6,7 @@ class Design {
   final LocalizedString category;
   final String imageUrl;
   final bool isLarge;
+  final String? behanceUrl;
 
   Design({
     required this.id,
@@ -13,6 +14,7 @@ class Design {
     required this.category,
     required this.imageUrl,
     this.isLarge = false,
+    this.behanceUrl,
   });
 }
 
@@ -27,6 +29,7 @@ class DesignData {
       category: const LocalizedString(en: 'Product Design', ar: 'تصميم المنتج'),
       imageUrl: 'assets/designs/AURIX/1.png',
       isLarge: true,
+      behanceUrl: 'https://www.behance.net/thabitbudeir1',
     ),
     Design(
       id: 'nabdh-design',
@@ -39,6 +42,7 @@ class DesignData {
         ar: 'تصميم واجهات الجوال',
       ),
       imageUrl: 'assets/designs/NABDH/1.png',
+      behanceUrl: 'https://www.behance.net/thabitbudeir1',
     ),
     Design(
       id: 'fodoora-design',
@@ -51,6 +55,7 @@ class DesignData {
         ar: 'دراسة حالة تجربة المستخدم',
       ),
       imageUrl: 'assets/designs/Fodoora/fodoora.png',
+      behanceUrl: 'https://www.behance.net/thabitbudeir1',
     ),
     Design(
       id: 'dashboard-ui',
@@ -60,6 +65,7 @@ class DesignData {
       ),
       category: const LocalizedString(en: 'Web Interface', ar: 'واجهة ويب'),
       imageUrl: 'assets/designs/Dashboard UI/1.png',
+      behanceUrl: 'https://www.behance.net/thabitbudeir1',
     ),
   ];
 }
