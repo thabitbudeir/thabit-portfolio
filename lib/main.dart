@@ -4,7 +4,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/typography.dart';
 import 'core/localization/app_strings.dart';
 import 'pages/home/home_page.dart';
-
+import 'services/visitor_counter_service.dart';
 
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
@@ -44,6 +44,9 @@ class _PortfolioAppState extends State<PortfolioApp> {
   void initState() {
     super.initState();
     _isDark = widget.initialIsDark;
+    // Trigger the visitor counter service when the app starts.
+    // This increments the count in the dashboard without displaying it to the user.
+    VisitorCounterService.fetchCount();
   }
 
   Future<void> _updateTheme(bool isDark) async {
